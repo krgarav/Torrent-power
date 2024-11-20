@@ -20,18 +20,19 @@ const app = express();
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { hashPassword } from "./helpers/authHelper.js";
+
 const __filename = fileURLToPath(import.meta.url);
 
 const __dirname = path.dirname(__filename);
 
-
+const builtPath = path.join(__dirname,"../", "./Frontend","build");
 // Middleware setup
 app.use(cors());
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
+app.use(express.static(builtPath));
 app.use("/images", express.static(__dirname + '/images'));
 // Routes setup
 app.use("/", userRoutes); // Mount user routes at /api/users
@@ -42,7 +43,11 @@ app.use("/", taggingRoutes);
 app.use("/", analysisRoutes);
 app.use("/", maintainanceRoutes);
 
-
+// Handle all other routes and serve React's index.html
+app.get("*", (req, res) => {
+    res.sendFile(path.join(builtPath, "index.html"));
+  });
+  
 
 Warehouse.belongsTo(FileData, { foreignKey: "fileDataId" });
 Tagging.belongsTo(FileData, { foreignKey: "fileDataId" });
