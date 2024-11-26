@@ -37,6 +37,7 @@ import { getDetail } from "helper/maintainance_helper";
 import { deleteDirectory } from "helper/maintainance_helper";
 import { deletePdf } from "helper/maintainance_helper";
 import Loader from "components/Loader/Loader";
+import { getFileFromBarcode } from "helper/fileData_helper";
 
 const Maintainance = () => {
     const [selectedCSA, setSelectedCSA] = useState("");
@@ -48,25 +49,40 @@ const Maintainance = () => {
     const [selectedBarcode, setSelectedBarcode] = useState("");
     const [fileNames, setFileNames] = useState([]);
 
-
-    const getAllFiles = async () => {
+    const handleFileSelectFromBarcode = async (barcode) => {
         try {
-            const data = await getAllFilesData();
+            const data = await getFileFromBarcode({ barcode });
             if (data?.success) {
-                setCSAData(data?.data)
+                if (data?.data != null) {
+                    setCSAData([data?.data]);
+                }
             }
         } catch (error) {
             console.log(error);
-            toast.error("Something went wrong");
+            toast.error(error?.response?.data?.message || "Something went wrong");
         }
     }
-    useEffect(() => {
-        getAllFiles();
 
-    }, []);
+    // const getAllFiles = async () => {
+    //     try {
+    //         const data = await getAllFilesData();
+    //         if (data?.success) {
+    //             setCSAData(data?.data)
+    //         }
+    //     } catch (error) {
+    //         console.log(error);
+    //         toast.error("Something went wrong");
+    //     }
+    // }
+    // useEffect(() => {
+    //     getAllFiles();
+
+    // }, []);
 
 
-
+    const handleBarcodeInputChange = inputValue => {
+        handleFileSelectFromBarcode(inputValue);
+    }
 
     const handleSelectCSA = selectedOption => {
         setSelectedBarcode(selectedOption);
@@ -213,11 +229,13 @@ const Maintainance = () => {
 
                                             value={selectedBarcode}
                                             onChange={handleBarcodeChange}
+                                            onInputChange={handleBarcodeInputChange}
                                             options={CSAData}
                                             getOptionLabel={option => option?.barcode}
                                             getOptionValue={option => option?.id?.toString()} // Convert to string if classId is a number
                                             classNamePrefix="select2-selection"
-                                        />
+                                         placeholder="Enter barcode to search"
+                                       />
                                         {!selectedBarcode && <span style={{ color: "red", display: spanDisplay }}>This feild is required</span>}
                                     </div>
                                 </Row>
