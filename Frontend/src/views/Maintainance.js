@@ -94,12 +94,6 @@ const Maintainance = () => {
         setSelectedCSA(selectedOption);
     }
 
-
-
-
-
-
-
     const handleAddFileSubmit = async () => {
         if (selectedCSA == "") {
             toast.error("Kindly Select the CSA Number")
