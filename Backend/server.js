@@ -52,7 +52,7 @@ app.get("*", (req, res) => {
 Warehouse.belongsTo(FileData, { foreignKey: "fileDataId" });
 Tagging.belongsTo(FileData, { foreignKey: "fileDataId" });
 
-const PORT = 8000;
+const PORT = 3000;
 
 // sequelize.sync({ alter: true }).then(async () => {
 sequelize.sync({ force: false }).then(async () => {
