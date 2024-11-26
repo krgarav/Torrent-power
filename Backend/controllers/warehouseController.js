@@ -1,7 +1,7 @@
 
 import FileData from "../models/FileData.js";
 import Warehouse from "../models/warehouse.js";
-
+import { Op } from "sequelize";
 export const addFile = async (req, res) => {
     const { boxNumber, shelfNumber, rackNumber, floorNumber, selectedCSA } = req.body;
 
@@ -166,7 +166,13 @@ export const returnFile = async (req, res) => {
 export const getFilDataFromBarcode = async (req, res) => {
     const { selectedCSA } = req.body;
     try {
-        let file = await Warehouse.findOne({ where: { fileDataId: selectedCSA?.id } });
+        let file = await Warehouse.findOne({
+            where: {
+              fileDataId: {
+                [Op.like]: `%${selectedCSA?.id}%`, // Adds a partial match condition
+              },
+            },
+          });
         if (!file) {
             return res.status(201).json({
                 success: false,
