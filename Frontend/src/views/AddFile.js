@@ -175,7 +175,7 @@ const AddFile = () => {
 
     const handleChange = (event) => {
         // Get the value from the input field
-        const scannedValue = event.target.value;
+        const scannedValue = event.target.value.trim();
 
         // Update the barcode state with the scanned value
         setBarcode(scannedValue);
@@ -324,7 +324,7 @@ const AddFile = () => {
                                                 className='form-control'
                                                 placeholder="Enter Customer Service Number"
                                                 value={CSANumber}
-                                                onChange={(e) => setCSANumber(e.target.value)}
+                                                onChange={(e) => setCSANumber(e.target.value.trim())}
                                                 style={{ color: "black" }} />
                                             {!CSANumber && <span style={{ color: "red", display: spanDisplay }}>This feild is required</span>}
                                         </div>
