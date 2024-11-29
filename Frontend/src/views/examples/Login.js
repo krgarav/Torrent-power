@@ -92,7 +92,7 @@ const Login = () => {
 
               <h1>Sign in </h1>
             </div>
-            <Form role="form">
+            <Form role="form" onKeyDown={(e) => e.key === "Enter" && handleLogin()}>
               <FormGroup className="mb-3">
                 <InputGroup className="input-group-alternative">
                   <InputGroupAddon addonType="prepend">
