@@ -82,6 +82,53 @@ const Warehouse = () => {
     }
   };
   useEffect(() => {
+    const loadData = async () => {
+      try {
+        const num = +selectedBarcode.barcode + 1
+        const str = (num).toString();
+        console.log(str);
+        const data = await getFileFromBarcode({ barcode: str });
+        console.log(data);
+        if (data?.success) {
+          if (data?.data !== null) {
+            setCSAData([data?.data]);
+            setSelectedCSA(data?.data);
+            setSelectedBarcode(data?.data);
+          }else{
+            toast.warning("No data available for next barcode")
+          }
+        }
+      } catch (error) {
+        console.log(error);
+        toast.error(error?.response?.data?.message || "Something went wrong");
+      }
+      // const res= await  handleFileSelectFromBarcode();
+      // console.log(res)
+    };
+    console.log(selectedCSA);
+    const handleKeyDown = (event) => {
+      // Check if Shift and N are pressed
+      if (event.altKey && event.key === "s") {
+        if (selectedBarcode.length !== 0) {
+          console.log("barcode selected");
+          console.log(+selectedBarcode.barcode + 1);
+          loadData();
+        } else {
+         
+          console.log("no barcode selected");
+        }
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener("keydown", handleKeyDown);
+
+    // Cleanup the event listener on unmount
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [selectedBarcode]);
+  useEffect(() => {
     // fetchUsers();
     // getAllFiles();
   }, []);
@@ -349,6 +396,7 @@ const Warehouse = () => {
   const handleFileSelectFromBarcode = async (barcode) => {
     try {
       const data = await getFileFromBarcode({ barcode });
+      console.log(data);
       if (data?.success) {
         if (data?.data != null) {
           setCSAData([data?.data]);
@@ -384,12 +432,13 @@ const Warehouse = () => {
                       value={selectedBarcode}
                       onChange={handleBarcodeChange}
                       onInputChange={handleBarcodeInputChange}
-                      options={
-                        CSAData.sort((a, b) =>
-                          a.barcode.localeCompare(b.barcode)
-                        ) // Sort options in ascending order
-                      }
-                      filterOption={customFilterOption} // Custom filter for sorting by search input
+                      options={CSAData}
+                      // options={
+                      //   CSAData.sort((a, b) =>
+                      //     a.barcode.localeCompare(b.barcode)
+                      //   ) // Sort options in ascending order
+                      // }
+                      // filterOption={customFilterOption} // Custom filter for sorting by search input
                       getOptionLabel={(option) => option?.barcode}
                       getOptionValue={(option) => option?.id?.toString()} // Convert to string if id is a number
                       classNamePrefix="select2-selection"

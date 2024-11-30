@@ -165,6 +165,7 @@ export const returnFile = async (req, res) => {
 
 export const getFilDataFromBarcode = async (req, res) => {
     const { selectedCSA } = req.body;
+    console.log(selectedCSA+">>>>>>>>>>>>>>>>>>>>>")
     try {
         let file = await Warehouse.findOne({
             where: {

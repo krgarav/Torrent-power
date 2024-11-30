@@ -269,8 +269,13 @@ const Tagging = () => {
     const [error, setError] = useState('');
 
 
+  
+// useEffect(()=>{
+//     if(selectedBarcode.length!==0){
+//         console.log("barcode selected");
+//     }
 
-
+// },[selectedBarcode])
 
 
     const handleFileSelectFromCSA = async (csa) => {
