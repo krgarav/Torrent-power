@@ -132,8 +132,6 @@ const AllFilesTable = ({
       // Format the date as yyyy-mm-dd
       const formattedDate = date.toISOString().split("T")[0];
       setDateOfApplication(formattedDate);
-
-      console.log("dateOfApplication ", d.dateOfApplication);
       collectionPointData.map((data) => {
         if (data.name == d.collectionPoint) {
           setCollectionPoint(data);
@@ -232,25 +230,25 @@ const AllFilesTable = ({
               <div className="d-flex justify-content-between ">
                 <h3 className="mt-2">All Files</h3>
                 <div className="d-flex justify-content-center">
-              <input
-                type="text"
-                className="form-control w-58 "
-                placeholder="Enter barcode to search.."
-                value={search}
-                onChange={handleSearchChange}
-              />
-              <Button
-                className=""
-                color="info"
-                type="button"
-                onClick={() => {
-                  fetchSearchFiles(1, pageSize1);
-                  setCurrentPage1(1);
-                }}
-              >
-                Search
-              </Button>
-            </div>
+                  <input
+                    type="text"
+                    className="form-control w-58 "
+                    placeholder="Enter barcode to search.."
+                    value={search}
+                    onChange={handleSearchChange}
+                  />
+                  <Button
+                    className=""
+                    color="info"
+                    type="button"
+                    onClick={() => {
+                      fetchSearchFiles(1, pageSize1);
+                      setCurrentPage1(1);
+                    }}
+                  >
+                    Search
+                  </Button>
+                </div>
                 {/* <div className="">
                                     <Select
 
@@ -284,12 +282,13 @@ const AllFilesTable = ({
               </div>
             </CardHeader>
 
-            
-
             {search.length > 0 ? (
               <div className="table">
                 <div className="control-pane">
-                  <div className="control-section row justify-content-center"   style={{ height: "60vh", overflow: "hidden" }}>
+                  <div
+                    className="control-section row justify-content-center"
+                    style={{ height: "60vh", overflow: "hidden" }}
+                  >
                     <GridComponent
                       dataSource={files1}
                       width="100%"
