@@ -84,8 +84,8 @@ const Warehouse = () => {
   useEffect(() => {
     const loadData = async () => {
       try {
-        const num = +selectedBarcode.barcode + 1
-        const str = (num).toString();
+        const num = +selectedBarcode.barcode + 1;
+        const str = num.toString();
         console.log(str);
         const data = await getFileFromBarcode({ barcode: str });
         console.log(data);
@@ -94,8 +94,8 @@ const Warehouse = () => {
             setCSAData([data?.data]);
             setSelectedCSA(data?.data);
             setSelectedBarcode(data?.data);
-          }else{
-            toast.warning("No data available for next barcode")
+          } else {
+            toast.warning("No data available for next barcode");
           }
         }
       } catch (error) {
@@ -114,7 +114,6 @@ const Warehouse = () => {
           console.log(+selectedBarcode.barcode + 1);
           loadData();
         } else {
-         
           console.log("no barcode selected");
         }
       }
@@ -392,7 +391,7 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-
+  console.log(CSAData);
   const handleFileSelectFromBarcode = async (barcode) => {
     try {
       const data = await getFileFromBarcode({ barcode });

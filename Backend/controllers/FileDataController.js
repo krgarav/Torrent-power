@@ -477,53 +477,108 @@ export const getTodayFileEntryData = async (req, res) => {
 export const exportReportData = async (req, res) => {
   try {
     let { startDate, endDate } = req.body;
+   
     const adjustedEndDate = new Date(endDate);
     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
-    const fileData = await FileData.findAll({
-      attributes: [
-        "dateOfApplication",
-        "collectionPoint",
-        [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
-        [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
-      ],
-      group: ["dateOfApplication", "collectionPoint"],
-      raw: true,
-      where: {
-        createdAt: {
-          [Op.gte]: startDate,
-          [Op.lt]: adjustedEndDate, // Use Op.lt with the adjusted end date to include the entire end date
-        },
-        barcode: {
-          [Op.gt]: 100000, // Only include fileData with barcode greater than 100,000
-        },
-      },
-    });
+ 
+    // Fetch data with grouped attributes (based on createdAt)
+const fileData = await FileData.findAll({
+  attributes: [
+    [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"], // Group by the date part of createdAt
+    "collectionPoint",
+    [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
+    [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
+  ],
+  group: ["createdDate", "collectionPoint"], // Group by createdDate and collectionPoint
+  raw: true,
+  where: {
+    createdAt: {
+      [Op.gte]: startDate,
+      [Op.lte]: adjustedEndDate, // Adjusted to include the entire end date
+    },
+    // barcode: {
+    //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
+    // },
+  },
+});
 
-    // Process data to group by date
-    const groupedData = fileData.reduce((acc, item) => {
-      const date =
-        item.dateOfApplication instanceof Date
-          ? item.dateOfApplication.toISOString().split("T")[0]
-          : new Date(item.dateOfApplication).toISOString().split("T")[0];
+// Debugging: Log the fetched data to ensure correctness
+console.log("Grouped File Data by CreatedAt:", fileData);
 
-      if (!acc[date]) {
-        acc[date] = {
-          Date: new Date(date),
-          subData: [],
-        };
-      }
+// Process data to group by createdDate
+const groupedData = fileData.reduce((acc, item) => {
+  const date = item.createdDate; // Already formatted as a date string (YYYY-MM-DD)
 
-      // Aggregate total files and pages for each date
-      acc[date].subData.push({
-        collectionPoint: item.collectionPoint || "",
-        files: parseInt(item.fileCount, 10),
-        totalPages: parseInt(item.totalPages, 10),
-        priority: "Normal",
-        approved: false,
-      });
+  // Create a new entry for each unique date
+  if (!acc[date]) {
+    acc[date] = {
+      Date: new Date(date),
+      subData: [],
+      totalFiles: 0,
+      totalPages: 0, // Initialize totals
+    };
+  }
 
-      return acc;
-    }, {});
+  // Aggregate data for each collection point
+  acc[date].subData.push({
+    collectionPoint: item.collectionPoint || "",
+    files: parseInt(item.fileCount, 10),
+    totalPages: parseInt(item.totalPages, 10),
+    priority: "Normal",
+    approved: false,
+  });
+
+  // Update total files and pages for the date
+  acc[date].totalFiles += parseInt(item.fileCount, 10);
+  acc[date].totalPages += parseInt(item.totalPages, 10);
+
+  return acc;
+}, {});
+    // const fileData = await FileData.findAll({
+    //   attributes: [
+    //     "dateOfApplication",
+    //     "collectionPoint",
+    //     [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
+    //     [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
+    //   ],
+    //   group: ["dateOfApplication", "collectionPoint"],
+    //   raw: true,
+    //   where: {
+    //     createdAt: {
+    //       [Op.gte]: startDate,
+    //       [Op.lt]: adjustedEndDate, // Use Op.lt with the adjusted end date to include the entire end date
+    //     },
+    //     barcode: {
+    //       [Op.gt]: 100000, // Only include fileData with barcode greater than 100,000
+    //     },
+    //   },
+    // });
+
+    // // Process data to group by date
+    // const groupedData = fileData.reduce((acc, item) => {
+    //   const date =
+    //     item.dateOfApplication instanceof Date
+    //       ? item.dateOfApplication.toISOString().split("T")[0]
+    //       : new Date(item.dateOfApplication).toISOString().split("T")[0];
+
+    //   if (!acc[date]) {
+    //     acc[date] = {
+    //       Date: new Date(date),
+    //       subData: [],
+    //     };
+    //   }
+
+    //   // Aggregate total files and pages for each date
+    //   acc[date].subData.push({
+    //     collectionPoint: item.collectionPoint || "",
+    //     files: parseInt(item.fileCount, 10),
+    //     totalPages: parseInt(item.totalPages, 10),
+    //     priority: "Normal",
+    //     approved: false,
+    //   });
+
+    //   return acc;
+    // }, {});
 
     // Convert the object to an array
     const result = Object.values(groupedData);

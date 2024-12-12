@@ -36,15 +36,12 @@ import AddFile from "views/AddFile";
 import Maintainance from "views/Maintainance";
 import Report from "views/Report";
 import DashboardData from "views/DashboardData";
+import SplitWarehouse from "views/SplitWarehouse";
 
-
-
-const auth = JSON.parse(localStorage.getItem('auth'));
+const auth = JSON.parse(localStorage.getItem("auth"));
 const access = auth?.userData?.permissions;
 
 var routes = [
-
-
   {
     path: "/index",
     name: "Dashboard",
@@ -53,55 +50,87 @@ var routes = [
     layout: "/admin",
   },
 
-  ...(access?.fileEntryAccess ? [{
-    path: "/fileEntry",
-    name: "File Entry",
-    icon: "ni ni-briefcase-24 text-yellow",
-    component: <AddFile />,
-    layout: "/admin",
-  }] : []),
+  ...(access?.fileEntryAccess
+    ? [
+        {
+          path: "/fileEntry",
+          name: "File Entry",
+          icon: "ni ni-briefcase-24 text-yellow",
+          component: <AddFile />,
+          layout: "/admin",
+        },
+      ]
+    : []),
 
-  ...(access?.taggingAccess ? [{
-    path: "/tagging",
-    name: "Tagging",
-    icon: "ni ni-briefcase-24 text-yellow",
-    component: <Tagging />,
-    layout: "/admin",
-  }] : []),
-  ...(access?.wareHouseAccess ? [{
-    path: "/warehouse",
-    name: "Warehouse",
-    icon: "ni ni-shop text-orange",
-    component: <Warehouse />,
-    layout: "/admin",
-  }] : []),
+  ...(access?.taggingAccess
+    ? [
+        {
+          path: "/tagging",
+          name: "Tagging",
+          icon: "ni ni-briefcase-24 text-yellow",
+          component: <Tagging />,
+          layout: "/admin",
+        },
+      ]
+    : []),
+  ...(access?.wareHouseAccess
+    ? [
+        {
+          path: "/warehouse",
+          name: "Warehouse",
+          icon: "ni ni-shop text-orange",
+          component: <Warehouse />,
+          layout: "/admin",
+        },
+      ]
+    : []),
 
-  ...(access?.userManagementAccess ? [{
-    path: "/user-managment",
-    name: "User Managment",
-    icon: "ni ni-circle-08 text-info",
-    component: <UserManagment />,
-    layout: "/admin",
-  }] : []),
+  ...(access?.userManagementAccess
+    ? [
+        {
+          path: "/user-managment",
+          name: "User Managment",
+          icon: "ni ni-circle-08 text-info",
+          component: <UserManagment />,
+          layout: "/admin",
+        },
+      ]
+    : []),
 
-  ...(access?.maintainanceAccess ? [{
-    path: "/maintainance",
-    name: "Maintainance",
-    icon: "ni ni-controller text-primary",
-    component: <Maintainance />,
-    layout: "/admin",
-  }] : []),
-  ...(access?.reportAccess ? [{
-    path: "/report",
-    name: "Report",
-    icon: "ni ni-chart-pie-35 text-primary",
-    component: <Report />,
-    layout: "/admin",
-  }] : []),
-
-
+  ...(access?.maintainanceAccess
+    ? [
+        {
+          path: "/maintainance",
+          name: "Maintainance",
+          icon: "ni ni-controller text-primary",
+          component: <Maintainance />,
+          layout: "/admin",
+        },
+      ]
+    : []),
+  ...(access?.maintainanceAccess
+    ? [
+        {
+          path: "/splitwarehouse",
+          name: "Split Warehouse",
+          icon: "ni ni-controller text-primary",
+          component: <SplitWarehouse />,
+          layout: "/admin",
+        },
+      ]
+    : []),
+  ...(access?.reportAccess
+    ? [
+        {
+          path: "/report",
+          name: "Report",
+          icon: "ni ni-chart-pie-35 text-primary",
+          component: <Report />,
+          layout: "/admin",
+        },
+      ]
+    : []),
 ];
-
 
 // export const generateRoutes = () => {
 //   const auth = JSON.parse(localStorage.getItem('auth'));
@@ -149,5 +178,3 @@ var routes = [
 // Initially generate routes when the application loads
 // const routes = generateRoutes();
 export default routes;
-
-

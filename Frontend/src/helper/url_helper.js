@@ -25,7 +25,7 @@ export const EXPORT_REPORT_DATA = url + "exportReportData";
 export const GET_SEARCH_FILE_DATA = url + "getSearchFileData";
 export const GET_FILE_FROM_BARCODE = url + "getFileFromBarcode";
 export const GET_FILE_FROM_CSA = url + "getFileFromCSA";
-
+export const GET_FILEDATA_FROM_BOXNUMBER = url + "getBoxData";
 export const PRINT_BARCODE = url + "printBarcode";
 
 export const GET_ANALYSIS_DATA = url + "getAnalysisData";

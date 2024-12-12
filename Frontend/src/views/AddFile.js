@@ -55,6 +55,27 @@ const AddFile = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
+
+  const handleBlurInputChange = (e) => {
+    const value = e.target.value.trim();
+
+    // Allow only numbers and restrict length to 9 digits
+    if (/^\d{0,9}$/.test(value)) {
+      setCSANumber(value);
+    }
+
+    // Display an error if the length isn't 9
+    if (value.length === 9 || value.length === 0) {
+      setErrorMessage(""); // Valid length
+    } else if (value.length > 9) {
+      alert("CSA Number should not exceed 9 digits.");
+      setErrorMessage("CSA Number should not exceed 9 digits.");
+    } else {
+      alert("CSA Number must be exactly 9 digits.");
+      setErrorMessage("CSA Number must be exactly 9 digits.");
+    }
+  };
   const fetchAllFiles = async (pageNumber = 1, pageSize = 10) => {
     try {
       const { data } = await axios.get(GET_ALL_FILEDATA, {
@@ -344,7 +365,7 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="text"
+                        type="number"
                         className="form-control"
                         value={barcode}
                         ref={barcodeInputRef}
@@ -369,11 +390,17 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="text"
+                        type="number"
                         className="form-control"
                         placeholder="Enter Customer Service Number"
                         value={CSANumber}
-                        onChange={(e) => setCSANumber(e.target.value.trim())}
+                        onChange={(e) => {
+                          const value = e.target.value.trim();
+                          if (/^\d{0,9}$/.test(value)) {
+                            setCSANumber(value);
+                          }
+                        }}
+                        onBlur={handleBlurInputChange}
                         style={{ color: "black" }}
                       />
                       {!CSANumber && (
