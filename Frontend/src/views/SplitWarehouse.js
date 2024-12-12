@@ -34,6 +34,7 @@ import Select from "react-select";
 import { Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { getFileDataFromBoxNumber } from "helper/fileData_helper";
+import { updateBoxData } from "helper/warehouse_helper";
 const SplitWarehouse = () => {
   const [selectedBoxNumber, setSelectedBoxNumber] = useState("");
   const [BarcodeData, setBarcodeData] = useState([]);
@@ -118,34 +119,48 @@ const SplitWarehouse = () => {
     // handleFileSelectFromBarcode;
     setSearch(e.target.value);
   };
-  const handleAddFileSubmit = () => {
-    // if (!newBoxNumber) {
-    //   setSpanDisplay("inline");
-    //   return;
-    // }
-    // if (!newRackNumber) {
-    //   setSpanDisplay("inline");
-    //   return;
-    // }
-    // if (!newSelfNumber) {
-    //   setSpanDisplay("inline");
-    //   return;
-    // }
-    // if (!newFloorNumber) {
-    //   setSpanDisplay("inline");
-    //   return;
-    // }
-    console.log(selectedRows);
+  const handleAddFileSubmit = async () => {
+    if (!newBoxNumber) {
+      setSpanDisplay("inline");
+      return;
+    }
+    if (!newRackNumber) {
+      setSpanDisplay("inline");
+      return;
+    }
+    if (!newSelfNumber) {
+      setSpanDisplay("inline");
+      return;
+    }
+    if (!newFloorNumber) {
+      setSpanDisplay("inline");
+      return;
+    }
+    // console.log(selectedRows);
     // selectedRows
     if (selectedRows) {
-      const data = selectedRows.map((item) => {
+      const filteredWithId = selectedRows.map((item) => {
         return item.id;
       });
-      console.log(data);
+      const obj = {
+        newBoxNumber: newBoxNumber,
+        selfNumber: newSelfNumber,
+        rackNumber: newRackNumber,
+        floorNumber: newFloorNumber,
+        boxIds: JSON.stringify(filteredWithId),
+      };
+
+      try {
+        const res = await updateBoxData(obj);
+
+        if (res?.success) {
+          setShowSplitModal(false);
+          toast.success("Updated the Box Number successfully");
+        }
+      } catch (error) {
+        toast.error("Error occurred during updating!!! ");
+      }
     }
-    // const ExtractIDs = (item) => {
-    //   item
-    // };
   };
   const columnsDirective = headData.map((item, index) => {
     return (
@@ -218,9 +233,7 @@ const SplitWarehouse = () => {
                 {sourceData.length !== 0 && (
                   <>
                     <Row>
-                      <h3>
-                        Total File in <span style={{}}>{search}</span> Box File
-                      </h3>
+                      <h3>Total Rows Selected : {selectedRows.length}</h3>
                       <GridComponent
                         // ref={gridRef}
                         // dataBound={dataBound}
@@ -258,19 +271,21 @@ const SplitWarehouse = () => {
                         </ColumnsDirective>
                       </GridComponent>
                     </Row>
-                    <Row className="d-flex justify-content-center">
-                      <Button
-                        className="mt-4 "
-                        color="primary"
-                        type="button"
-                        onClick={() => {
-                          console.log(selectedRows);
-                          setShowSplitModal(true);
-                        }}
-                      >
-                        Split Data
-                      </Button>
-                    </Row>
+                    {selectedRows.length !== 0 && (
+                      <Row className="d-flex justify-content-center">
+                        <Button
+                          className="mt-4 "
+                          color="primary"
+                          type="button"
+                          onClick={() => {
+                            console.log(selectedRows);
+                            setShowSplitModal(true);
+                          }}
+                        >
+                          Split Data
+                        </Button>
+                      </Row>
+                    )}
                   </>
                 )}
                 <Modal

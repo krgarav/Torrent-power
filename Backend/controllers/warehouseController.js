@@ -333,65 +333,53 @@ export const getBoxData = async (req, res) => {
 };
 
 export const updateBoxData = async (req, res) => {
+  const { newBoxNumber, selfNumber, rackNumber, floorNumber, boxIds } =
+    req.body;
+
+  if (!newBoxNumber || !selfNumber || !rackNumber || !floorNumber || !boxIds) {
+    return res.status(400).send({ message: "All fields are required." });
+  }
+  // console.log(newBoxNumber, selfNumber, rackNumber, floorNumber, boxIds )
+  // return
   try {
-    const { boxNumber } = req.body;
+    // Parse the boxIds string into an array if it's in string format
+    const parsedBoxIds = JSON.parse(boxIds);
+    // Check if newBoxNumber already exists
 
-    console.log(boxNumber);
-    // console.log(boxNumber);
-    // Find all file records matching the CSA
-    // const fileRecords = await FileData.findAll({ where: { CSA: CSA } });
-    // return;
-    // Initialize an array to store the warehouse records
-    const warehouseRecord = [];
+    const existingBox = await Warehouse.findOne({
+      where: { boxNumber: newBoxNumber },
+    });
 
-    // Use a for...of loop to handle async operations
-    // for (const file of fileRecords) {
-    // Find the corresponding warehouse record for each file
-    // const data = await Warehouse.findAll({
-    //   where: { boxNumber: boxNumber },
-    //   include: {
-    //     model: FileData,
-    //     attributes: [
-    //       "id",
-    //       "CSA",
-    //       "barcode",
-    //       "noOfPages",
-    //       "typeOfRequest",
-    //       "collectionPoint",
-    //     ],
-    //   },
-    //   attributes: ["boxNumber", "id"],
-    // });
-    // const fileData = await FileData.findAll({ where: { id: data.id } });
-    // Push the file and its corresponding warehouse data into the array
-    //   if (data) {
-    //     let finalData = {
-    //       barcode: file?.barcode,
-    //       CSA: file?.CSA,
-    //       typeOfRequest: file?.typeOfRequest,
-    //       collectionPoint: file?.collectionPoint,
-    //       dateOfApplication: file?.dateOfApplication,
-    //       boxNumber: data?.boxNumber,
-    //       shelfNumber: data?.shelfNumber,
-    //       rackNumber: data?.rackNumber,
-    //       floorNumber: data?.floorNumber,
-    //     };
-    //     warehouseRecord.push(finalData);
-    //   }
-    // }
+    if (existingBox) {
+      return res.status(400).send({
+        success: false,
+        message: `Box with number ${newBoxNumber} already exists.`,
+      });
+    }
+    // Update all the specified columns for the matching boxIds
+    const result = await Warehouse.update(
+      {
+        boxNumber: newBoxNumber,
+        selfNumber,
+        rackNumber,
+        floorNumber,
+      },
+      {
+        where: { id: parsedBoxIds }, // Assuming `id` is the column name for boxIds
+      }
+    );
 
-    // Respond with the collected data
-    res.status(201).json({
+    if (result[0] === 0) {
+      return res.status(404).send({  success: false, message: "No boxes found to update." });
+    }
+
+    return res.status(200).send({
       success: true,
-      message: "File Data",
-      result: data,
+      message: "Boxes updated successfully.",
+      updatedCount: result[0], // Number of rows updated
     });
   } catch (error) {
-    console.error("Error in Add File:", error);
-    res.status(500).json({
-      success: false,
-      message: "Error in getting data",
-      error: error.message,
-    });
+    console.error("Error updating boxes:", error);
+    return res.status(500).send({  success: false, message: "Internal server error." });
   }
 };
