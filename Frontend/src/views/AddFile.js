@@ -142,6 +142,14 @@ const AddFile = () => {
       collectionPoint,
     } = dataRef.current;
 
+    if (CSANumber.length !== 9) {
+      const res = window.confirm(
+        "CSA Length less than 9 digit, Are you sure you want to proceed?"
+      );
+      if (!res) {
+        return;
+      }
+    }
     try {
       setLoader(true);
       const data = await saveFileData({

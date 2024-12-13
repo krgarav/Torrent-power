@@ -113,7 +113,7 @@ var routes = [
         {
           path: "/splitwarehouse",
           name: "Split Warehouse",
-          icon: "ni ni-controller text-primary",
+          icon: "ni ni-shop text-primary",
           component: <SplitWarehouse />,
           layout: "/admin",
         },

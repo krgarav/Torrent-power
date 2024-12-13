@@ -264,13 +264,11 @@ export const getFileDataBasedOnCondition = async (req, res) => {
         },
       },
     });
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "files based on the filter",
-        data: result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "files based on the filter",
+      data: result,
+    });
   } catch (error) {
     console.log(error);
     res
@@ -288,13 +286,11 @@ export const getFileDataFromBarcode = async (req, res) => {
       where: { barcode: { [Op.like]: `%${barcode}%` } },
     }); // Use 'findOne' instead of 'findAll'
     console.log("result ", result);
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "files based on the filter",
-        data: result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "files based on the filter",
+      data: result,
+    });
   } catch (error) {
     console.log(error);
     res
@@ -307,13 +303,11 @@ export const getFileDataFromCSA = async (req, res) => {
   try {
     const { CSA } = req.body;
     const result = await FileData.findOne({ where: { CSA: CSA } }); // Use 'findOne' instead of 'findAll'
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "files based on the filter",
-        data: result,
-      });
+    res.status(200).json({
+      success: true,
+      message: "files based on the filter",
+      data: result,
+    });
   } catch (error) {
     console.log(error);
     res
@@ -334,13 +328,11 @@ export const getFileDetailData = async (req, res) => {
       where: { fileDataId: fileDataId },
     });
 
-    res
-      .status(200)
-      .json({
-        success: true,
-        message: "Detail data",
-        result: { tagging, warehouse },
-      });
+    res.status(200).json({
+      success: true,
+      message: "Detail data",
+      result: { tagging, warehouse },
+    });
   } catch (error) {
     console.log(error);
     res
@@ -477,63 +469,66 @@ export const getTodayFileEntryData = async (req, res) => {
 export const exportReportData = async (req, res) => {
   try {
     let { startDate, endDate } = req.body;
-   
+
     const adjustedEndDate = new Date(endDate);
     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
- 
+
     // Fetch data with grouped attributes (based on createdAt)
-const fileData = await FileData.findAll({
-  attributes: [
-    [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"], // Group by the date part of createdAt
-    "collectionPoint",
-    [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
-    [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
-  ],
-  group: ["createdDate", "collectionPoint"], // Group by createdDate and collectionPoint
-  raw: true,
-  where: {
-    createdAt: {
-      [Op.gte]: startDate,
-      [Op.lte]: adjustedEndDate, // Adjusted to include the entire end date
-    },
-    // barcode: {
-    //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
-    // },
-  },
-});
+    const fileData = await FileData.findAll({
+      attributes: [
+        [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"], // Group by the date part of createdAt
+        "collectionPoint",
+        [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
+        [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
+      ],
+      group: ["createdDate", "collectionPoint"], // Group by createdDate and collectionPoint
+      raw: true,
+      where: {
+        createdAt: {
+          [Op.gte]: startDate,
+          [Op.lte]: adjustedEndDate, // Adjusted to include the entire end date
+        },
+        // barcode: {
+        //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
+        // },
+        barcode: {
+          [Op.gte]: 100000, // Include fileData with barcodes greater than or equal to 100,000 (6 digits)
+        },
+      },
+    });
 
-// Debugging: Log the fetched data to ensure correctness
-console.log("Grouped File Data by CreatedAt:", fileData);
+    // Debugging: Log the fetched data to ensure correctness
+    console.log("Grouped File Data by CreatedAt:", fileData);
 
-// Process data to group by createdDate
-const groupedData = fileData.reduce((acc, item) => {
-  const date = item.createdDate; // Already formatted as a date string (YYYY-MM-DD)
+    // Process data to group by createdDate
+    const groupedData = fileData.reduce((acc, item) => {
+      const date = item.createdDate; // Already formatted as a date string (YYYY-MM-DD)
 
-  // Create a new entry for each unique date
-  if (!acc[date]) {
-    acc[date] = {
-      Date: new Date(date),
-      subData: [],
-      totalFiles: 0,
-      totalPages: 0, // Initialize totals
-    };
-  }
+      // Create a new entry for each unique date
+      if (!acc[date]) {
+        acc[date] = {
+          Date: new Date(date),
+          subData: [],
+          totalFiles: 0,
+          totalPages: 0, // Initialize totals
+        };
+      }
 
-  // Aggregate data for each collection point
-  acc[date].subData.push({
-    collectionPoint: item.collectionPoint || "",
-    files: parseInt(item.fileCount, 10),
-    totalPages: parseInt(item.totalPages, 10),
-    priority: "Normal",
-    approved: false,
-  });
+      // Aggregate data for each collection point
+      acc[date].subData.push({
+        collectionPoint: item.collectionPoint || "",
+        files: parseInt(item.fileCount, 10),
+        totalPages: parseInt(item.totalPages, 10),
+        priority: "Normal",
+        approved: false,
+      });
 
-  // Update total files and pages for the date
-  acc[date].totalFiles += parseInt(item.fileCount, 10);
-  acc[date].totalPages += parseInt(item.totalPages, 10);
+      // Update total files and pages for the date
+      acc[date].totalFiles += parseInt(item.fileCount, 10);
+      acc[date].totalPages += parseInt(item.totalPages, 10);
 
-  return acc;
-}, {});
+      return acc;
+    }, {});
     // const fileData = await FileData.findAll({
     //   attributes: [
     //     "dateOfApplication",

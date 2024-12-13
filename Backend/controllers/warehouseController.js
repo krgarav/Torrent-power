@@ -272,16 +272,6 @@ export const getBoxData = async (req, res) => {
   try {
     const { boxNumber } = req.query;
 
-    console.log(boxNumber);
-    // console.log(boxNumber);
-    // Find all file records matching the CSA
-    // const fileRecords = await FileData.findAll({ where: { CSA: CSA } });
-    // return;
-    // Initialize an array to store the warehouse records
-    const warehouseRecord = [];
-
-    // Use a for...of loop to handle async operations
-    // for (const file of fileRecords) {
     // Find the corresponding warehouse record for each file
     const data = await Warehouse.findAll({
       where: { boxNumber: boxNumber },
@@ -298,28 +288,19 @@ export const getBoxData = async (req, res) => {
       },
       attributes: ["boxNumber", "id"],
     });
-    // const fileData = await FileData.findAll({ where: { id: data.id } });
-    // Push the file and its corresponding warehouse data into the array
-    //   if (data) {
-    //     let finalData = {
-    //       barcode: file?.barcode,
-    //       CSA: file?.CSA,
-    //       typeOfRequest: file?.typeOfRequest,
-    //       collectionPoint: file?.collectionPoint,
-    //       dateOfApplication: file?.dateOfApplication,
-    //       boxNumber: data?.boxNumber,
-    //       shelfNumber: data?.shelfNumber,
-    //       rackNumber: data?.rackNumber,
-    //       floorNumber: data?.floorNumber,
-    //     };
-    //     warehouseRecord.push(finalData);
-    //   }
-    // }
 
-    // Respond with the collected data
+    // If no data found, return success as false
+    if (data.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No data found for the given box number.",
+      });
+    }
+
+    // Respond with the collected data if found
     res.status(201).json({
       success: true,
-      message: "File Data",
+      message: "File Data retrieved successfully",
       result: data,
     });
   } catch (error) {
@@ -370,7 +351,9 @@ export const updateBoxData = async (req, res) => {
     );
 
     if (result[0] === 0) {
-      return res.status(404).send({  success: false, message: "No boxes found to update." });
+      return res
+        .status(404)
+        .send({ success: false, message: "No boxes found to update." });
     }
 
     return res.status(200).send({
@@ -380,6 +363,8 @@ export const updateBoxData = async (req, res) => {
     });
   } catch (error) {
     console.error("Error updating boxes:", error);
-    return res.status(500).send({  success: false, message: "Internal server error." });
+    return res
+      .status(500)
+      .send({ success: false, message: "Internal server error." });
   }
 };

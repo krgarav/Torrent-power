@@ -296,7 +296,7 @@ const SplitWarehouse = () => {
                 >
                   <Modal.Header>
                     <Modal.Title id="contained-modal-title-vcenter">
-                      Split Box File
+                      Total File selected : {selectedRows.length} files
                     </Modal.Title>
                   </Modal.Header>
                   <Modal.Body style={{ overflow: "auto", height: "70vh" }}>
