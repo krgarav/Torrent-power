@@ -469,7 +469,8 @@ export const getTodayFileEntryData = async (req, res) => {
 export const exportReportData = async (req, res) => {
   try {
     let { startDate, endDate } = req.body;
-
+console.log(startDate,endDate)
+    // return
     const adjustedEndDate = new Date(endDate);
     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
 
@@ -486,17 +487,19 @@ export const exportReportData = async (req, res) => {
       where: {
         createdAt: {
           [Op.gte]: startDate,
-          [Op.lte]: adjustedEndDate, // Adjusted to include the entire end date
+          [Op.lte]: endDate, // Adjusted to include the entire end date
         },
         // barcode: {
         //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
         // },
-        barcode: {
-          [Op.gte]: 100000, // Include fileData with barcodes greater than or equal to 100,000 (6 digits)
-        },
+        // barcode: {
+        //   [Op.gte]: 100000, // Include fileData with barcodes greater than or equal to 100,000 (6 digits)
+        // },
       },
     });
 
+
+    
     // Debugging: Log the fetched data to ensure correctness
     console.log("Grouped File Data by CreatedAt:", fileData);
 
