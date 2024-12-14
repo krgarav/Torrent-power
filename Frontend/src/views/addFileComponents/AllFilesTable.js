@@ -115,12 +115,14 @@ const AllFilesTable = ({
   };
 
   const handleEditRowClick = async (d) => {
+    console.log(d);
     try {
       setSelectedFileId(d.id);
       setUpdateModal(true);
       setCSANumber(d?.CSA);
       setBarcode(d?.barcode);
       typeOfRequestData.forEach((data) => {
+        console.log(data);
         if (data.name.toLowerCase() === d?.typeOfRequest.toLowerCase()) {
           setTypeOfRequest(data);
         }
@@ -143,15 +145,40 @@ const AllFilesTable = ({
     }
   };
 
+  // const dropdownTemplate = (props) => (
+  //   <td className="text-right">
+  //     <UncontrolledDropdown>
+  //       <DropdownToggle
+  //         className="btn-icon-only text-light"
+  //         href="#pablo"
+  //         role="button"
+  //         size="sm"
+  //         color=""
+  //         onClick={(e) => e.preventDefault()}
+  //       >
+  //         <i className="fas fa-ellipsis-v" />
+  //       </DropdownToggle>
+  //       <DropdownMenu className="dropdown-menu-arrow" right>
+  //         <DropdownItem href="#pablo" onClick={() => handleEditRowClick(props)}>
+  //           Edit
+  //         </DropdownItem>
+  //         <DropdownItem href="#pablo" onClick={() => handleRowClick(props)}>
+  //           View
+  //         </DropdownItem>
+  //       </DropdownMenu>
+  //     </UncontrolledDropdown>
+  //   </td>
+  // );
+
   const dropdownTemplate = (props) => (
-    <td className="text-right">
+    <td className="text-right" style={{ zIndex: "999" }}>
       <UncontrolledDropdown>
         <DropdownToggle
-          className="btn-icon-only text-light"
+          className="btn btn-link text-light p-0"
           href="#pablo"
           role="button"
           size="sm"
-          color=""
+          color="transparent"
           onClick={(e) => e.preventDefault()}
         >
           <i className="fas fa-ellipsis-v" />
@@ -220,7 +247,43 @@ const AllFilesTable = ({
     setSearch(event.target.value);
     setCurrentPage(1); // Reset to first page on new search
   };
+  console.log(files1);
+  const LoadedTemplates = files1?.map((d, i) => (
+    <tr
+      key={i}
+      // onClick={() => handleRowClick(d, i)}
+      style={{ cursor: "pointer", zIndex: "9999" }} // Adds a pointer cursor on hover
+    >
+      <td>{d["CSA"]}</td>
+      <td>{d.barcode}</td>
+      <td>{d.typeOfRequest}</td>
 
+      <td>{d.noOfPages}</td>
+      <td>{d.createdAt}</td>
+      <td className="text-right">
+        <UncontrolledDropdown>
+          <DropdownToggle
+            className="btn btn-link text-light p-0"
+            href="#pablo"
+            role="button"
+            size="sm"
+            color="transparent"
+            onClick={(e) => e.preventDefault()}
+          >
+            <i className="fas fa-ellipsis-v" />
+          </DropdownToggle>
+          <DropdownMenu className="dropdown-menu-arrow" right>
+            <DropdownItem href="#pablo" onClick={() => handleEditRowClick(d)}>
+              Edit
+            </DropdownItem>
+            <DropdownItem href="#pablo" onClick={() => handleRowClick(d)}>
+              View
+            </DropdownItem>
+          </DropdownMenu>
+        </UncontrolledDropdown>
+      </td>
+    </tr>
+  ));
   return (
     <>
       <Row>
@@ -287,53 +350,61 @@ const AllFilesTable = ({
                 <div className="control-pane">
                   <div
                     className="control-section row justify-content-center"
-                    style={{ height: "60vh", overflow: "hidden" }}
+                    style={{ overflow: "auto" }}
                   >
-                    <GridComponent
+                    {/* <GridComponent
                       dataSource={files1}
                       width="100%"
                       height="100%"
-                      // toolbar={toolbarOptions}
-                      allowSorting={true}
-                      // allowFiltering={true}
-                      // allowPaging={true}
-                      // filterSettings={filterSettings}
-                      pageSettings={{ pageSize: 10, pageCount: 5 }} // Handle page change event
+                      pageSettings={{ pageSize: 10, pageCount: 5 }}
                       scrollSettings={{
-                        enableVirtualization: true, // Enable scrolling with fixed header
-                        height: "100%", // This makes the body scrollable while header stays fixed
+                        enableVirtualization: true,
+                        height: "100%",
                       }}
+                      allowSorting={true}
                     >
                       <ColumnsDirective>
                         <ColumnDirective
                           field="CSA"
                           headerText="CSA"
-                          width="300"
-                        ></ColumnDirective>
+                          width="auto"
+                          minWidth={200}
+                          maxWidth={400}
+                        />
                         <ColumnDirective
                           field="barcode"
                           headerText="Barcode"
-                          width="300"
-                        ></ColumnDirective>
+                          width="auto"
+                          minWidth={200}
+                          maxWidth={400}
+                        />
                         <ColumnDirective
                           field="typeOfRequest"
                           headerText="Type Of Request"
-                          width="300"
-                        ></ColumnDirective>
+                          width="auto"
+                          minWidth={200}
+                          maxWidth={400}
+                        />
                         <ColumnDirective
                           field="noOfPages"
                           headerText="No of Pages"
-                          width="300"
-                        ></ColumnDirective>
+                          width="auto"
+                          minWidth={200}
+                          maxWidth={400}
+                        />
                         <ColumnDirective
                           field="createdAt"
                           headerText="Created At"
-                          width="300"
+                          width="auto"
+                          minWidth={200}
+                          maxWidth={400}
                           template={dateTemplate}
-                        ></ColumnDirective>
+                        />
                         <ColumnDirective
                           headerText="Actions"
-                          width="150"
+                          width="auto"
+                          minWidth={150}
+                          maxWidth={200}
                           template={dropdownTemplate}
                           textAlign="Right"
                         />
@@ -341,7 +412,33 @@ const AllFilesTable = ({
                       <Inject
                         services={[Toolbar, Page, Sort, Filter, Scroll]}
                       />
-                    </GridComponent>
+                    </GridComponent> */}
+
+                    <Table
+                      className="align-items-center table-flush mb-5 table-hover"
+                      style={{ width: "100%", tableLayout: "fixed" }}
+                      // responsive
+                    >
+                      <thead
+                        className="thead-light"
+                        style={{
+                          position: "sticky",
+                          top: 0,
+                          zIndex: 1,
+                          backgroundColor: "white",
+                        }}
+                      >
+                        <tr>
+                          <th scope="col">CSA</th>
+                          <th scope="col">Barcode</th>
+                          <th scope="col">typeOfRequest</th>
+                          <th scope="col">noOfPages</th>
+                          <th scope="col">createdAt</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>{LoadedTemplates}</tbody>
+                    </Table>
                   </div>
                 </div>
                 <div className="d-flex justify-content-end mt-2">
@@ -377,66 +474,34 @@ const AllFilesTable = ({
                 <div className="control-pane">
                   <div
                     className="control-section row justify-content-center"
-                    style={{ height: "60vh", overflow: "hidden" }}
+                    style={{ overflow: "hidden" }}
                   >
                     {files.length > 0 && (
-                      <GridComponent
-                        dataSource={files}
-                        width="100%"
-                        height="100%"
-                        // toolbar={toolbarOptions}
-                        allowSorting={true}
-                        // allowFiltering={true}
-                        // allowPaging={true}
-                        pageSettings={{
-                          pageSize: pageSize,
-                          pageCount: Math.ceil(totalRecords / pageSize), // Calculate the total number of pages
-                          currentPage: currentPage,
-                        }}
-                        pageSettingsChange={handlePageChange} // Handle page change event
-                        scrollSettings={{
-                          enableVirtualization: true, // Enable scrolling with fixed header
-                          height: "100%", // This makes the body scrollable while header stays fixed
-                        }}
+                      <Table
+                        className="align-items-center table-flush mb-5 table-hover"
+                        // style={{ width: '100%', tableLayout: 'fixed' }}
+                        // responsive
                       >
-                        <ColumnsDirective>
-                          <ColumnDirective
-                            field="CSA"
-                            headerText="CSA"
-                            width="300"
-                          ></ColumnDirective>
-                          <ColumnDirective
-                            field="barcode"
-                            headerText="Barcode"
-                            width="300"
-                          ></ColumnDirective>
-                          <ColumnDirective
-                            field="typeOfRequest"
-                            headerText="Type Of Request"
-                            width="300"
-                          ></ColumnDirective>
-                          <ColumnDirective
-                            field="noOfPages"
-                            headerText="No of Pages"
-                            width="300"
-                          ></ColumnDirective>
-                          <ColumnDirective
-                            field="createdAt"
-                            headerText="Created At"
-                            width="300"
-                            template={dateTemplate}
-                          ></ColumnDirective>
-                          <ColumnDirective
-                            headerText="Actions"
-                            width="150"
-                            template={dropdownTemplate}
-                            textAlign="Right"
-                          />
-                        </ColumnsDirective>
-                        <Inject
-                          services={[Toolbar, Page, Sort, Filter, Scroll]}
-                        />
-                      </GridComponent>
+                        <thead
+                          className="thead-light"
+                          style={{
+                            position: "sticky",
+                            top: 0,
+                            zIndex: 1,
+                            backgroundColor: "white",
+                          }}
+                        >
+                          <tr>
+                            <th scope="col">CSA</th>
+                            <th scope="col">Barcode</th>
+                            <th scope="col">typeOfRequest</th>
+                            <th scope="col">noOfPages</th>
+                            <th scope="col">createdAt</th>
+                            <th scope="col">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>{LoadedTemplates}</tbody>
+                      </Table>
                     )}
                   </div>
                   <div className="d-flex justify-content-end mt-2">

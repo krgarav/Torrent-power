@@ -368,3 +368,55 @@ export const updateBoxData = async (req, res) => {
       .send({ success: false, message: "Internal server error." });
   }
 };
+
+export const updateSameBoxData = async (req, res) => {
+  const { BoxNumber, boxIds } = req.body;
+
+  if (!BoxNumber || !boxIds) {
+    return res.status(400).send({ message: "All fields are required." });
+  }
+  // console.log(newBoxNumber, selfNumber, rackNumber, floorNumber, boxIds )
+  // return
+  try {
+    // Parse the boxIds string into an array if it's in string format
+    const parsedBoxIds = JSON.parse(boxIds);
+    // Check if newBoxNumber already exists
+
+    const existingBox = await Warehouse.findOne({
+      where: { boxNumber: BoxNumber },
+    });
+
+    if (!existingBox) {
+      return res.status(400).send({
+        success: false,
+        message: `Box with number ${BoxNumber} does not exists.`,
+      });
+    }
+    // Update all the specified columns for the matching boxIds
+    const result = await Warehouse.update(
+      {
+        boxNumber: BoxNumber,
+      },
+      {
+        where: { id: parsedBoxIds }, // Assuming `id` is the column name for boxIds
+      }
+    );
+
+    if (result[0] === 0) {
+      return res
+        .status(404)
+        .send({ success: false, message: "No boxes found to update." });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Boxes updated successfully.",
+      updatedCount: result[0], // Number of rows updated
+    });
+  } catch (error) {
+    console.error("Error updating boxes:", error);
+    return res
+      .status(500)
+      .send({ success: false, message: "Internal server error." });
+  }
+};

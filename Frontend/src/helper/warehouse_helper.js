@@ -12,3 +12,4 @@ export const getFileDataFromBarcode = (data) =>
 export const getWarehousingRecord = (data) =>
   post(url.GET_WAREHOUSING_RECORD, data);
 export const updateBoxData = (data) => post(url.UPDATE_BOX_DATA, data);
+export const updateSameBoxData = (data) => post(url.UPDATE_SAME_BOX_DATA, data);

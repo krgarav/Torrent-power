@@ -1,5 +1,5 @@
 import NormalHeader from "components/Headers/NormalHeader";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   GridComponent,
   ColumnsDirective,
@@ -35,6 +35,10 @@ import { Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { getFileDataFromBoxNumber } from "helper/fileData_helper";
 import { updateBoxData } from "helper/warehouse_helper";
+import "@syncfusion/ej2-base/styles/material.css";
+import "@syncfusion/ej2-react-grids/styles/material.css";
+import { updateSameBoxData } from "helper/warehouse_helper";
+
 const SplitWarehouse = () => {
   const [selectedBoxNumber, setSelectedBoxNumber] = useState("");
   const [BarcodeData, setBarcodeData] = useState([]);
@@ -48,6 +52,8 @@ const SplitWarehouse = () => {
   const [newSelfNumber, setNewSelfNumber] = useState(null);
   const [newFloorNumber, setNewFloorNumber] = useState(null);
   const [spanDisplay, setSpanDisplay] = useState("none");
+  const [sameBoxNumber, setSameBoxNumber] = useState(false);
+  const boxNumberRef = useRef(null);
   const handleRowSelected = (args) => {
     // Add the selected row data to the state
     setSelectedRows((prevRows) => [...prevRows, args.data]);
@@ -113,6 +119,8 @@ const SplitWarehouse = () => {
     handleFileSelectFromBarcode(inputValue);
   };
   const handleSearch = () => {
+    setSourceData([]);
+    setSelectedRows([]);
     handleFileSelectFromBarcode(search);
   };
   const handleSearchChange = (e) => {
@@ -120,45 +128,72 @@ const SplitWarehouse = () => {
     setSearch(e.target.value);
   };
   const handleAddFileSubmit = async () => {
-    if (!newBoxNumber) {
-      setSpanDisplay("inline");
-      return;
-    }
-    if (!newRackNumber) {
-      setSpanDisplay("inline");
-      return;
-    }
-    if (!newSelfNumber) {
-      setSpanDisplay("inline");
-      return;
-    }
-    if (!newFloorNumber) {
-      setSpanDisplay("inline");
-      return;
-    }
-    // console.log(selectedRows);
-    // selectedRows
-    if (selectedRows) {
-      const filteredWithId = selectedRows.map((item) => {
-        return item.id;
-      });
-      const obj = {
-        newBoxNumber: newBoxNumber,
-        selfNumber: newSelfNumber,
-        rackNumber: newRackNumber,
-        floorNumber: newFloorNumber,
-        boxIds: JSON.stringify(filteredWithId),
-      };
+    if (!sameBoxNumber) {
+      if (!newBoxNumber) {
+        setSpanDisplay("inline");
+        return;
+      }
+      if (!newRackNumber) {
+        setSpanDisplay("inline");
+        return;
+      }
+      if (!newSelfNumber) {
+        setSpanDisplay("inline");
+        return;
+      }
+      if (!newFloorNumber) {
+        setSpanDisplay("inline");
+        return;
+      }
+      // console.log(selectedRows);
+      // selectedRows
+      if (selectedRows) {
+        const filteredWithId = selectedRows.map((item) => {
+          return item.id;
+        });
+        const obj = {
+          newBoxNumber: newBoxNumber,
+          selfNumber: newSelfNumber,
+          rackNumber: newRackNumber,
+          floorNumber: newFloorNumber,
+          boxIds: JSON.stringify(filteredWithId),
+        };
 
-      try {
-        const res = await updateBoxData(obj);
+        try {
+          const res = await updateBoxData(obj);
 
-        if (res?.success) {
-          setShowSplitModal(false);
-          toast.success("Updated the Box Number successfully");
+          if (res?.success) {
+            setShowSplitModal(false);
+            toast.success("Updated the Box Number successfully");
+          }
+        } catch (error) {
+          toast.error("Error occurred during updating!!! ");
         }
-      } catch (error) {
-        toast.error("Error occurred during updating!!! ");
+      }
+    } else {
+      if (!boxNumberRef.current.value) {
+        alert("Box number cannot be blank");
+        return;
+      }
+      if (selectedRows) {
+        const filteredWithId = selectedRows.map((item) => {
+          return item.id;
+        });
+        const obj = {
+          BoxNumber: boxNumberRef.current.value,
+          boxIds: JSON.stringify(filteredWithId),
+        };
+
+        try {
+          const res = await updateSameBoxData(obj);
+
+          if (res?.success) {
+            setShowSplitModal(false);
+            toast.success("Updated the Box Number successfully");
+          }
+        } catch (error) {
+          toast.error("Error occurred during updating!!! ");
+        }
       }
     }
   };
@@ -275,14 +310,27 @@ const SplitWarehouse = () => {
                       <Row className="d-flex justify-content-center">
                         <Button
                           className="mt-4 "
+                          color="success"
+                          type="button"
+                          onClick={() => {
+                            console.log(selectedRows);
+                            setShowSplitModal(true);
+                            setSameBoxNumber(true);
+                          }}
+                        >
+                          Split with Same Box Number
+                        </Button>
+                        <Button
+                          className="mt-4 "
                           color="primary"
                           type="button"
                           onClick={() => {
                             console.log(selectedRows);
                             setShowSplitModal(true);
+                            setSameBoxNumber(false);
                           }}
                         >
-                          Split Data
+                          Split with Different Box Number
                         </Button>
                       </Row>
                     )}
@@ -325,106 +373,138 @@ const SplitWarehouse = () => {
                         ))}
                       </>
                     )} */}
-                    <div className="shadow p-3 mb-5 bg-white rounded">
-                      <Row className="mb-3">
-                        <label
-                          htmlFor="example-text-input"
-                          className="col-md-3 col-form-label"
-                        >
-                          New Box Number
-                        </label>
-                        <div className="col-md-9">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter New Box Number"
-                            value={newBoxNumber}
-                            onChange={(e) => setNewBoxNumber(e.target.value)}
-                          />
-                          {!newBoxNumber && (
-                            <span
-                              style={{ color: "red", display: spanDisplay }}
-                            >
-                              This feild is required
-                            </span>
-                          )}
-                        </div>
-                      </Row>
-                      <Row className="mb-3">
-                        <label
-                          htmlFor="example-text-input"
-                          className="col-md-3 col-form-label"
-                        >
-                          New Rack Number
-                        </label>
-                        <div className="col-md-9">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter Rack Number"
-                            value={newRackNumber}
-                            onChange={(e) => setNewRackNumber(e.target.value)}
-                          />
-                          {!newRackNumber && (
-                            <span
-                              style={{ color: "red", display: spanDisplay }}
-                            >
-                              This feild is required
-                            </span>
-                          )}
-                        </div>
-                      </Row>
+                    {!sameBoxNumber && (
+                      <div className="shadow p-3 mb-5 bg-white rounded">
+                        <Row className="mb-3">
+                          <label
+                            htmlFor="example-text-input"
+                            className="col-md-3 col-form-label"
+                          >
+                            New Box Number
+                          </label>
+                          <div className="col-md-9">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter New Box Number"
+                              value={newBoxNumber}
+                              onChange={(e) => setNewBoxNumber(e.target.value)}
+                            />
+                            {!newBoxNumber && (
+                              <span
+                                style={{ color: "red", display: spanDisplay }}
+                              >
+                                This feild is required
+                              </span>
+                            )}
+                          </div>
+                        </Row>
+                        <Row className="mb-3">
+                          <label
+                            htmlFor="example-text-input"
+                            className="col-md-3 col-form-label"
+                          >
+                            New Rack Number
+                          </label>
+                          <div className="col-md-9">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Rack Number"
+                              value={newRackNumber}
+                              onChange={(e) => setNewRackNumber(e.target.value)}
+                            />
+                            {!newRackNumber && (
+                              <span
+                                style={{ color: "red", display: spanDisplay }}
+                              >
+                                This feild is required
+                              </span>
+                            )}
+                          </div>
+                        </Row>
 
-                      <Row className="mb-3">
-                        <label
-                          htmlFor="example-text-input"
-                          className="col-md-3 col-form-label"
-                        >
-                          New Shelf Number
-                        </label>
-                        <div className="col-md-9">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter Shelf Number"
-                            value={newSelfNumber}
-                            onChange={(e) => setNewSelfNumber(e.target.value)}
-                          />
-                          {!newSelfNumber && (
-                            <span
-                              style={{ color: "red", display: spanDisplay }}
-                            >
-                              This feild is required
-                            </span>
-                          )}
-                        </div>
-                      </Row>
+                        <Row className="mb-3">
+                          <label
+                            htmlFor="example-text-input"
+                            className="col-md-3 col-form-label"
+                          >
+                            New Shelf Number
+                          </label>
+                          <div className="col-md-9">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Shelf Number"
+                              value={newSelfNumber}
+                              onChange={(e) => setNewSelfNumber(e.target.value)}
+                            />
+                            {!newSelfNumber && (
+                              <span
+                                style={{ color: "red", display: spanDisplay }}
+                              >
+                                This feild is required
+                              </span>
+                            )}
+                          </div>
+                        </Row>
 
-                      <Row className="mb-3">
-                        <label
-                          htmlFor="example-text-input"
-                          className="col-md-3 col-form-label"
-                        >
-                          New Floor Number
-                        </label>
-                        <div className="col-md-9">
-                          <input
-                            type="text"
-                            className="form-control"
-                            placeholder="Enter Floor Number"
-                            value={newFloorNumber}
-                            onChange={(e) => setNewFloorNumber(e.target.value)}
-                          />
-                          {!newFloorNumber && (
-                            <span
-                              style={{ color: "red", display: spanDisplay }}
-                            >
-                              This feild is required
-                            </span>
-                          )}
-                        </div>
-                      </Row>
-                    </div>
+                        <Row className="mb-3">
+                          <label
+                            htmlFor="example-text-input"
+                            className="col-md-3 col-form-label"
+                          >
+                            New Floor Number
+                          </label>
+                          <div className="col-md-9">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Floor Number"
+                              value={newFloorNumber}
+                              onChange={(e) =>
+                                setNewFloorNumber(e.target.value)
+                              }
+                            />
+                            {!newFloorNumber && (
+                              <span
+                                style={{ color: "red", display: spanDisplay }}
+                              >
+                                This feild is required
+                              </span>
+                            )}
+                          </div>
+                        </Row>
+                      </div>
+                    )}
+                    {sameBoxNumber && (
+                      <div className="shadow p-3 mb-5 bg-white rounded">
+                        <Row className="mb-3">
+                          <label
+                            htmlFor="example-text-input"
+                            className="col-md-3 col-form-label"
+                          >
+                            Box Number
+                          </label>
+                          <div className="col-md-9">
+                            <input
+                              type="text"
+                              className="form-control"
+                              placeholder="Enter Existing Box Number"
+                              ref={boxNumberRef}
+                              // onChange={(e) => setNewBoxNumber(e.target.value)}
+                            />
+                            {/* {!newBoxNumber && (
+                              <span
+                                style={{ color: "red", display: spanDisplay }}
+                              >
+                                This feild is required
+                              </span>
+                            )} */}
+                          </div>
+                        </Row>
+                      </div>
+                    )}
                   </Modal.Body>
                   <Modal.Footer>
                     <Button

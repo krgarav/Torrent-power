@@ -4,8 +4,8 @@
 // const url = "http://192.168.1.17:8000/"
 // export const url2 = "http://192.168.1.17:8000"
 
-const url = "http://10.144.6.12:3000/";
-export const url2 = "http://10.144.6.12:3000";
+const url = "http://localhost:4000/";
+export const url2 = "http://localhost:4000";
 
 export default url + "createUser";
 export const UPDATE_USER = url + "updateUser/";
@@ -42,6 +42,7 @@ export const RETURN_FILE = url + "returnFile";
 export const GET_FILE_DATA_FROM_BARCODE = url + "getFileDataFromBarcode";
 export const GET_WAREHOUSING_RECORD = url + "getWarehousingRecord";
 export const UPDATE_BOX_DATA = url + "updateBoxData";
+export const UPDATE_SAME_BOX_DATA = url + "updateSameBoxData";
 
 export const CREATE_PDF_FROM_IMAGES = url + "convertImagesToPdf";
 export const CREATE_PDF_FROM_IMAGES_REPLACE = url + "convertImagesToPdfReplace";
