@@ -466,58 +466,272 @@ export const getTodayFileEntryData = async (req, res) => {
   }
 };
 
+// export const exportReportData = async (req, res) => {
+//   try {
+//     let { startDate, endDate } = req.body;
+//     // return
+//     const adjustedEndDate = new Date(endDate);
+//     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
+
+//     // Fetch data with grouped attributes (based on createdAt)
+//     const fileData = await FileData.findAll({
+//       attributes: [
+//         [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"], // Group by the date part of createdAt
+//         "collectionPoint",
+//         [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
+//         [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
+//       ],
+//       group: ["createdDate", "collectionPoint"], // Group by createdDate and collectionPoint
+//       raw: true,
+//       where: {
+//         createdAt: {
+//           [Op.gte]: startDate,
+//           [Op.lte]: adjustedEndDate, // Adjusted to include the entire end date
+//         },
+//         // barcode: {
+//         //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
+//         // },
+//         barcode: {
+//           [Op.gte]: 100000, // Include fileData with barcodes greater than or equal to 100,000 (6 digits)
+//         },
+//       },
+//     });
+
+//     // Debugging: Log the fetched data to ensure correctness
+//     console.log("Grouped File Data by CreatedAt:", fileData);
+
+//     // Process data to group by createdDate
+//     const groupedData = fileData.reduce((acc, item) => {
+//       const date = item.createdDate; // Already formatted as a date string (YYYY-MM-DD)
+
+//       // Create a new entry for each unique date
+//       if (!acc[date]) {
+//         acc[date] = {
+//           Date: new Date(date),
+//           subData: [],
+//           totalFiles: 0,
+//           totalPages: 0, // Initialize totals
+//         };
+//       }
+
+//       // Aggregate data for each collection point
+//       acc[date].subData.push({
+//         collectionPoint: item.collectionPoint || "",
+//         files: parseInt(item.fileCount, 10),
+//         totalPages: parseInt(item.totalPages, 10),
+//         priority: "Normal",
+//         approved: false,
+//       });
+
+//       // Update total files and pages for the date
+//       acc[date].totalFiles += parseInt(item.fileCount, 10);
+//       acc[date].totalPages += parseInt(item.totalPages, 10);
+
+//       return acc;
+//     }, {});
+//     // const fileData = await FileData.findAll({
+//     //   attributes: [
+//     //     "dateOfApplication",
+//     //     "collectionPoint",
+//     //     [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
+//     //     [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
+//     //   ],
+//     //   group: ["dateOfApplication", "collectionPoint"],
+//     //   raw: true,
+//     //   where: {
+//     //     createdAt: {
+//     //       [Op.gte]: startDate,
+//     //       [Op.lt]: adjustedEndDate, // Use Op.lt with the adjusted end date to include the entire end date
+//     //     },
+//     //     barcode: {
+//     //       [Op.gt]: 100000, // Only include fileData with barcode greater than 100,000
+//     //     },
+//     //   },
+//     // });
+
+//     // // Process data to group by date
+//     // const groupedData = fileData.reduce((acc, item) => {
+//     //   const date =
+//     //     item.dateOfApplication instanceof Date
+//     //       ? item.dateOfApplication.toISOString().split("T")[0]
+//     //       : new Date(item.dateOfApplication).toISOString().split("T")[0];
+
+//     //   if (!acc[date]) {
+//     //     acc[date] = {
+//     //       Date: new Date(date),
+//     //       subData: [],
+//     //     };
+//     //   }
+
+//     //   // Aggregate total files and pages for each date
+//     //   acc[date].subData.push({
+//     //     collectionPoint: item.collectionPoint || "",
+//     //     files: parseInt(item.fileCount, 10),
+//     //     totalPages: parseInt(item.totalPages, 10),
+//     //     priority: "Normal",
+//     //     approved: false,
+//     //   });
+
+//     //   return acc;
+//     // }, {});
+
+//     // Convert the object to an array
+//     const result = Object.values(groupedData);
+
+//     // Sort the data by date in descending order (latest date first)
+//     result.sort((a, b) => b.Date - a.Date);
+
+//     // Initialize the workbook and worksheet data
+//     const wb = xlsx.utils.book_new();
+//     const ws_data = [
+//       [
+//         "S no.",
+//         "Date",
+//         "Jaipur House",
+//         "",
+//         "Pratap Pura",
+//         "",
+//         "Sanjay Palace",
+//         "",
+//         "Total Files",
+//         "Total Pages",
+//       ],
+//       [
+//         "",
+//         "",
+//         "File Record",
+//         "Pages",
+//         "File Record",
+//         "Pages",
+//         "File Record",
+//         "Pages",
+//         "",
+//         "",
+//       ],
+//     ];
+
+//     // Fill the worksheet data dynamically
+//     result.forEach((item, index) => {
+//       const row = [index + 1, item.Date.toISOString().split("T")[0]];
+//       const collectionPoints = ["Jaipur House", "Pratap Pura", "Sanjay Palace"];
+
+//       let totalFiles = 0;
+//       let totalPages = 0;
+
+//       collectionPoints.forEach((point) => {
+//         const subDataEntry = item.subData.find(
+//           (sub) => sub.collectionPoint === point
+//         );
+//         if (subDataEntry) {
+//           row.push(subDataEntry.files, subDataEntry.totalPages);
+//           totalFiles += subDataEntry.files;
+//           totalPages += subDataEntry.totalPages;
+//         } else {
+//           row.push(0, 0);
+//         }
+//       });
+
+//       row.push(totalFiles, totalPages);
+//       ws_data.push(row);
+//     });
+
+//     // Create a worksheet and apply styles
+//     const ws = xlsx.utils.aoa_to_sheet(ws_data);
+
+//     // Apply merge and style
+//     ws["!merges"] = [
+//       { s: { r: 0, c: 2 }, e: { r: 0, c: 3 } }, // Merges "Jaipur House" and the next column
+//       { s: { r: 0, c: 4 }, e: { r: 0, c: 5 } }, // Merges "Pratap Pura" and the next column
+//       { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } }, // Merges "Sanjay Palace" and the next column
+//     ];
+
+//     // Style the merged cells
+//     const centerStyle = {
+//       alignment: { horizontal: "center", vertical: "center" },
+//     };
+
+//     ws["A1"].s = centerStyle;
+//     ws["B1"].s = centerStyle;
+//     ws["C1"].s = centerStyle;
+//     ws["D1"].s = centerStyle;
+//     ws["E1"].s = centerStyle;
+//     ws["F1"].s = centerStyle;
+//     ws["G1"].s = centerStyle;
+//     ws["H1"].s = centerStyle;
+//     ws["I1"].s = centerStyle;
+//     ws["J1"].s = centerStyle;
+
+//     xlsx.utils.book_append_sheet(wb, ws, "Sheet1");
+
+//     // Generate Excel file and send it to the frontend
+//     const filePath = path.join("output_sample.xlsx");
+//     xlsx.writeFile(wb, filePath);
+
+//     res.download(filePath, "output_sample.xlsx", (err) => {
+//       if (err) {
+//         console.error("Error sending the file:", err);
+//         res.status(500).send("Error generating file");
+//       } else {
+//         // Optionally delete the file after sending
+//         fs.unlink(filePath, (err) => {
+//           if (err) {
+//             console.error("Error deleting the file:", err);
+//           } else {
+//             console.log("File deleted successfully");
+//           }
+//         });
+//       }
+//     });
+//   } catch (error) {
+//     console.log(error);
+//     res
+//       .status(500)
+//       .json({ success: false, message: "Error in getting report data", error });
+//   }
+// };
+
 export const exportReportData = async (req, res) => {
   try {
     let { startDate, endDate } = req.body;
-console.log(startDate,endDate)
-    // return
+
+    // Adjust endDate to include the entire day
     const adjustedEndDate = new Date(endDate);
     adjustedEndDate.setDate(adjustedEndDate.getDate() + 1);
 
-    // Fetch data with grouped attributes (based on createdAt)
+    // Fetch data grouped by date and collection point
     const fileData = await FileData.findAll({
       attributes: [
-        [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"], // Group by the date part of createdAt
+        [sequelize.fn("DATE", sequelize.col("createdAt")), "createdDate"],
         "collectionPoint",
         [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
         [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
       ],
-      group: ["createdDate", "collectionPoint"], // Group by createdDate and collectionPoint
+      group: ["createdDate", "collectionPoint"],
       raw: true,
       where: {
         createdAt: {
           [Op.gte]: startDate,
-          [Op.lte]: endDate, // Adjusted to include the entire end date
+          [Op.lte]: adjustedEndDate,
         },
-        // barcode: {
-        //   [Op.gt]: 100000, // Include fileData with barcode > 100,000
-        // },
-        // barcode: {
-        //   [Op.gte]: 100000, // Include fileData with barcodes greater than or equal to 100,000 (6 digits)
-        // },
+        barcode: {
+          [Op.gte]: 100000,
+        },
       },
     });
 
-
-    
-    // Debugging: Log the fetched data to ensure correctness
-    console.log("Grouped File Data by CreatedAt:", fileData);
-
-    // Process data to group by createdDate
+    // Group data by date
     const groupedData = fileData.reduce((acc, item) => {
-      const date = item.createdDate; // Already formatted as a date string (YYYY-MM-DD)
+      const date = item.createdDate;
 
-      // Create a new entry for each unique date
       if (!acc[date]) {
         acc[date] = {
           Date: new Date(date),
           subData: [],
           totalFiles: 0,
-          totalPages: 0, // Initialize totals
+          totalPages: 0,
         };
       }
 
-      // Aggregate data for each collection point
       acc[date].subData.push({
         collectionPoint: item.collectionPoint || "",
         files: parseInt(item.fileCount, 10),
@@ -526,65 +740,19 @@ console.log(startDate,endDate)
         approved: false,
       });
 
-      // Update total files and pages for the date
       acc[date].totalFiles += parseInt(item.fileCount, 10);
       acc[date].totalPages += parseInt(item.totalPages, 10);
 
       return acc;
     }, {});
-    // const fileData = await FileData.findAll({
-    //   attributes: [
-    //     "dateOfApplication",
-    //     "collectionPoint",
-    //     [sequelize.fn("COUNT", sequelize.col("id")), "fileCount"],
-    //     [sequelize.fn("SUM", sequelize.col("noOfPages")), "totalPages"],
-    //   ],
-    //   group: ["dateOfApplication", "collectionPoint"],
-    //   raw: true,
-    //   where: {
-    //     createdAt: {
-    //       [Op.gte]: startDate,
-    //       [Op.lt]: adjustedEndDate, // Use Op.lt with the adjusted end date to include the entire end date
-    //     },
-    //     barcode: {
-    //       [Op.gt]: 100000, // Only include fileData with barcode greater than 100,000
-    //     },
-    //   },
-    // });
 
-    // // Process data to group by date
-    // const groupedData = fileData.reduce((acc, item) => {
-    //   const date =
-    //     item.dateOfApplication instanceof Date
-    //       ? item.dateOfApplication.toISOString().split("T")[0]
-    //       : new Date(item.dateOfApplication).toISOString().split("T")[0];
-
-    //   if (!acc[date]) {
-    //     acc[date] = {
-    //       Date: new Date(date),
-    //       subData: [],
-    //     };
-    //   }
-
-    //   // Aggregate total files and pages for each date
-    //   acc[date].subData.push({
-    //     collectionPoint: item.collectionPoint || "",
-    //     files: parseInt(item.fileCount, 10),
-    //     totalPages: parseInt(item.totalPages, 10),
-    //     priority: "Normal",
-    //     approved: false,
-    //   });
-
-    //   return acc;
-    // }, {});
-
-    // Convert the object to an array
+    // Convert grouped data to an array
     const result = Object.values(groupedData);
 
-    // Sort the data by date in descending order (latest date first)
+    // Sort by date in descending order
     result.sort((a, b) => b.Date - a.Date);
 
-    // Initialize the workbook and worksheet data
+    // Prepare Excel data
     const wb = xlsx.utils.book_new();
     const ws_data = [
       [
@@ -613,11 +781,10 @@ console.log(startDate,endDate)
       ],
     ];
 
-    // Fill the worksheet data dynamically
+    // Fill worksheet with data
     result.forEach((item, index) => {
       const row = [index + 1, item.Date.toISOString().split("T")[0]];
       const collectionPoints = ["Jaipur House", "Pratap Pura", "Sanjay Palace"];
-
       let totalFiles = 0;
       let totalPages = 0;
 
@@ -638,57 +805,38 @@ console.log(startDate,endDate)
       ws_data.push(row);
     });
 
-    // Create a worksheet and apply styles
+    // Create worksheet
     const ws = xlsx.utils.aoa_to_sheet(ws_data);
 
-    // Apply merge and style
+    // Apply merges
     ws["!merges"] = [
-      { s: { r: 0, c: 2 }, e: { r: 0, c: 3 } }, // Merges "Jaipur House" and the next column
-      { s: { r: 0, c: 4 }, e: { r: 0, c: 5 } }, // Merges "Pratap Pura" and the next column
-      { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } }, // Merges "Sanjay Palace" and the next column
+      { s: { r: 0, c: 2 }, e: { r: 0, c: 3 } },
+      { s: { r: 0, c: 4 }, e: { r: 0, c: 5 } },
+      { s: { r: 0, c: 6 }, e: { r: 0, c: 7 } },
     ];
 
-    // Style the merged cells
-    const centerStyle = {
-      alignment: { horizontal: "center", vertical: "center" },
-    };
+    // Add worksheet to workbook
+    xlsx.utils.book_append_sheet(wb, ws, "Report");
 
-    ws["A1"].s = centerStyle;
-    ws["B1"].s = centerStyle;
-    ws["C1"].s = centerStyle;
-    ws["D1"].s = centerStyle;
-    ws["E1"].s = centerStyle;
-    ws["F1"].s = centerStyle;
-    ws["G1"].s = centerStyle;
-    ws["H1"].s = centerStyle;
-    ws["I1"].s = centerStyle;
-    ws["J1"].s = centerStyle;
-
-    xlsx.utils.book_append_sheet(wb, ws, "Sheet1");
-
-    // Generate Excel file and send it to the frontend
+    // Save and send file
     const filePath = path.join("output_sample.xlsx");
     xlsx.writeFile(wb, filePath);
 
     res.download(filePath, "output_sample.xlsx", (err) => {
       if (err) {
-        console.error("Error sending the file:", err);
-        res.status(500).send("Error generating file");
-      } else {
-        // Optionally delete the file after sending
-        fs.unlink(filePath, (err) => {
-          if (err) {
-            console.error("Error deleting the file:", err);
-          } else {
-            console.log("File deleted successfully");
-          }
-        });
+        console.error("Error sending file:", err);
+        return res.status(500).send("Error generating file");
       }
+
+      // Cleanup file after sending
+      fs.unlink(filePath, (err) => {
+        if (err) console.error("Error deleting file:", err);
+      });
     });
   } catch (error) {
-    console.log(error);
+    console.error("Error generating report:", error);
     res
       .status(500)
-      .json({ success: false, message: "Error in getting report data", error });
+      .json({ success: false, message: "Error generating report", error });
   }
 };
