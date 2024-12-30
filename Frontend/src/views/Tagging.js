@@ -151,6 +151,7 @@ const Tagging = () => {
   };
 
   const handleBarcodeChange = (selectedOption) => {
+    console.log(selectedOption)
     setSelectedBarcode(selectedOption);
     setSelectedCSA(selectedOption);
   };
