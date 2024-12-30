@@ -1,6 +1,6 @@
 import { Sequelize } from "sequelize";
 
-export const sequelize = new Sequelize("torrentpower", "root@123", "root", {
+export const sequelize = new Sequelize("torrentpower", "root", "root@123", {
     dialect: "mysql",
     // host: "database",
     // port: 3307
