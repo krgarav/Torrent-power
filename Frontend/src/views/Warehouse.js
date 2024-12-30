@@ -393,14 +393,14 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-  console.log(CSAData);
+ 
   const handleFileSelectFromBarcode = async (barcode) => {
     try {
       const data = await getFileFromBarcode({ barcode });
       console.log(data);
       if (data?.success) {
         if (data?.data != null) {
-          setCSAData(data?.data);
+          setCSAData([data?.data]);
         }
       }
     } catch (error) {

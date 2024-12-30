@@ -323,7 +323,7 @@ const Tagging = () => {
       const data = await getFileFromBarcode({ barcode });
       if (data?.success) {
         if (data?.data != null) {
-          setCSAData(data?.data);
+          setCSAData([data?.data]);
         }
       }
     } catch (error) {
