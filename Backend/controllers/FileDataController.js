@@ -280,12 +280,13 @@ export const getFileDataBasedOnCondition = async (req, res) => {
 export const getFileDataFromBarcode = async (req, res) => {
   try {
     const { barcode } = req.body;
+    console.log(barcode)
     console.log("barcode ", barcode);
 
-    const result = await FileData.findOne({
+    const result = await FileData.findAll({
       where: { barcode: { [Op.like]: `%${barcode}%` } },
     }); // Use 'findOne' instead of 'findAll'
-    console.log("result ", result);
+    // console.log("result ", result);
     res.status(200).json({
       success: true,
       message: "files based on the filter",

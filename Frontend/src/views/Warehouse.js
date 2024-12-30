@@ -186,7 +186,9 @@ const Warehouse = () => {
     setFileData(null);
   };
   const handleBarcodeInputChange = (inputValue) => {
-    handleFileSelectFromBarcode(inputValue);
+    if (inputValue.length >= 4) {
+      handleFileSelectFromBarcode(inputValue);
+    }
   };
   const handleSelectUser = (selectedOption) => {
     setSelectedUser(selectedOption);
@@ -398,7 +400,7 @@ const Warehouse = () => {
       console.log(data);
       if (data?.success) {
         if (data?.data != null) {
-          setCSAData([data?.data]);
+          setCSAData(data?.data);
         }
       }
     } catch (error) {
@@ -406,7 +408,7 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-
+  console.log(CSAData);
   return (
     <>
       <NormalHeader />
