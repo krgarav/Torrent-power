@@ -214,7 +214,7 @@ export const downloadDataCsv = async (req, res) => {
           where: { fileDataId: file.id },
         });
 
-        const filteredTagging = filterTaggingData(tagging); // Filter if needed
+        // const filteredTagging = filterTaggingData(tagging); // Filter if needed
 
         const warehouse = await Warehouse.findAll({
           where: { fileDataId: file.id },
@@ -226,7 +226,7 @@ export const downloadDataCsv = async (req, res) => {
 
         return {
           fileData: file,
-          tagging: filteredTagging,
+          tagging: tagging,
           warehouse,
           noOfPages,
         };
