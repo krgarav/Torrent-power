@@ -20,13 +20,57 @@ import Select from "react-select";
 import { updateFileData } from "helper/fileData_helper";
 import { GET_ALL_FILEDATA } from "helper/url_helper";
 import { GET_SEARCH_FILE_DATA } from "helper/url_helper";
+import CreatableSelect from "react-select/creatable";
+const typeOfRequestData = [
+  { label: "Name Change", value: "Name Change" },
+  { label: "New Connection", value: "New Connection" },
+  { label: "Shifting", value: "Shifting" },
+  { label: "Category Change", value: "Category Change" },
+  { label: "Extension/Reduction", value: "Extension/Reduction" },
+  { label: "Service Removal", value: "Service Removal" },
+  { label: "Long Term Support", value: "Long Term Support" },
+  { label: "Seen On", value: "Seen On" },
+  { label: "Address Correction", value: "Address Correction" },
+  { label: "Solar", value: "Solar" },
+  { label: "PD Service", value: "PD Service" },
+  { label: "Online File", value: "Online File" },
+  { label: "Long Term Temporary", value: "Long Term Temporary" },
+  { label: "PDC on Account", value: "PDC on Account" },
+  { label: "YSRD", value: "YSRD" },
+  { label: "Complaint", value: "Complaint" },
+  { label: "Load Extension", value: "Load Extension" },
+  { label: "Long Term New Connection", value: "Long Term New Connection" },
+  {
+    label: "Old Reconnection Application",
+    value: "Old Reconnection Application",
+  },
+  { label: "LLC", value: "LLC" },
+  { label: "MCR", value: "MCR" },
+  { label: "GST", value: "GST" },
+  { label: "LETTER", value: "LETTER" },
 
+  { label: "Site Visit Report", value: "Site Visit Report" },
+  { label: "MSR", value: "MSR" },
+];
+
+// const typeOfRequestData = [
+//   { value: 'ocean', label: 'Ocean', color: '#00B8D9', isFixed: true },
+//   { value: 'blue', label: 'Blue', color: '#0052CC', isDisabled: true },
+//   { value: 'purple', label: 'Purple', color: '#5243AA' },
+//   { value: 'red', label: 'Red', color: '#FF5630', isFixed: true },
+//   { value: 'orange', label: 'Orange', color: '#FF8B00' },
+//   { value: 'yellow', label: 'Yellow', color: '#FFC400' },
+//   { value: 'green', label: 'Green', color: '#36B37E' },
+//   { value: 'forest', label: 'Forest', color: '#00875A' },
+//   { value: 'slate', label: 'Slate', color: '#253858' },
+//   { value: 'silver', label: 'Silver', color: '#666666' },
+// ]
 const AddFile = () => {
   const [CSANumber, setCSANumber] = useState("");
   const [spanDisplay, setSpanDisplay] = useState("none");
   const [barcodeUrl, setBarcodeUrl] = useState("");
   const [message, setMessage] = useState("");
-  const [typeOfRequest, setTypeOfRequest] = useState("");
+  const [typeOfRequest, setTypeOfRequest] = useState(null);
   const [noOfPages, setNoOfPages] = useState("");
   const [dateOfApplication, setDateOfApplication] = useState("");
   const [loader, setLoader] = useState(false);
@@ -56,7 +100,7 @@ const AddFile = () => {
   const [pageSize, setPageSize] = useState(10);
   const [totalRecords, setTotalRecords] = useState(0);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [options, setOptions] = useState(typeOfRequestData);
   const handleBlurInputChange = (e) => {
     const value = e.target.value.trim();
 
@@ -76,13 +120,23 @@ const AddFile = () => {
       setErrorMessage("CSA Number must be exactly 9 digits.");
     }
   };
+  const handleChanges = (selectedOption) => {
+    // Add the new option if it was created
+    if (selectedOption && selectedOption.__isNew__) {
+      setOptions((prevOptions) => [
+        ...prevOptions,
+        { id: options.length + 1, name: selectedOption.label },
+      ]);
+    }
+    setTypeOfRequest(selectedOption);
+  };
+
   const fetchAllFiles = async (pageNumber = 1, pageSize = 10) => {
     try {
       const { data } = await axios.get(GET_ALL_FILEDATA, {
         params: { pageNumber, pageSize },
       });
       if (data?.success) {
-        console.log(data?.data);
         setFiles(data?.data);
         setTotalRecords(data.totalRecords); // Store the total records for pagination
       }
@@ -110,28 +164,6 @@ const AddFile = () => {
     { id: 3, name: "Sanjay Palace" },
   ];
 
-  const typeOfRequestData = [
-    { id: 1, name: "Name Change" },
-    { id: 2, name: "New Connection" },
-    { id: 3, name: "Shifting" },
-    { id: 4, name: "Category Change" },
-    { id: 5, name: "Extension/Reduction" },
-    { id: 6, name: "Service Removal" },
-    { id: 7, name: "Long Term Support" },
-    { id: 8, name: "Seen On" },
-    { id: 9, name: "Address Correction" },
-    { id: 10, name: "Solar" },
-    { id: 11, name: "PD Service" },
-    { id: 12, name: "Online File" },
-    { id: 13, name: "Long Term Temporary" },
-    { id: 14, name: "PDC on Account" },
-    { id: 15, name: "YSRD" },
-    { id: 16, name: "Complaint" },
-    { id: 17, name: "Load Extension" },
-    { id: 18, name: "Long Term New Connection" },
-    { id: 19, name: "Old Reconnection Application" },
-  ];
-
   const handleSave = async () => {
     const {
       CSANumber,
@@ -154,7 +186,7 @@ const AddFile = () => {
       setLoader(true);
       const data = await saveFileData({
         CSA: CSANumber,
-        typeOfRequest: typeOfRequest.name,
+        typeOfRequest: typeOfRequest.value,
         noOfPages,
         dateOfApplication,
         barcode,
@@ -193,7 +225,7 @@ const AddFile = () => {
       setLoader(true);
       const data = await updateFileData({
         CSA,
-        typeOfRequest: typeOfRequest.name,
+        typeOfRequest: typeOfRequest.value,
         noOfPages,
         dateOfApplication,
         barcode,
@@ -418,7 +450,7 @@ const AddFile = () => {
                       )}
                     </div>
                   </Row>
-                  <Row className="mb-3">
+                  {/* <Row className="mb-3">
                     <label
                       htmlFor="example-text-input"
                       className="col-md-2 col-form-label"
@@ -442,6 +474,29 @@ const AddFile = () => {
                           This feild is required
                         </span>
                       )}
+                    </div>
+                  </Row> */}
+                  <Row className="mb-3">
+                    <label
+                      htmlFor="example-text-input"
+                      className="col-md-2 col-form-label"
+                    >
+                      Type of Request
+                    </label>
+                    <div className="col-md-10">
+                      <CreatableSelect
+                        isClearable
+                        onChange={(val) => {
+                          console.log(val);
+                          if (val) {
+                            setTypeOfRequest(val);
+                          }
+                        }}
+                        options={typeOfRequestData}
+                        // getOptionLabel={(option) => option?.name}
+                        // getOptionValue={(option) => option?.id?.toString()}
+                        value={typeOfRequest}
+                      />
                     </div>
                   </Row>
                   <Row className="mb-3">
@@ -761,6 +816,30 @@ const AddFile = () => {
               Type of Request
             </label>
             <div className="col-md-10">
+              <CreatableSelect
+                isClearable
+                onChange={(val) => {
+                  console.log(val);
+                  if (val) {
+                    setTypeOfRequest(val);
+                  }
+                }}
+                options={typeOfRequestData}
+                // getOptionLabel={(option) => option?.name}
+                // getOptionValue={(option) => option?.id?.toString()}
+                value={typeOfRequest}
+              />
+            </div>
+          </Row>
+
+          {/* <Row className="mb-3">
+            <label
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
+            >
+              Type of Request
+            </label>
+            <div className="col-md-10">
               <Select
                 onChange={(selectedOption) => setTypeOfRequest(selectedOption)}
                 options={typeOfRequestData}
@@ -775,7 +854,7 @@ const AddFile = () => {
                 </span>
               )}
             </div>
-          </Row>
+          </Row> */}
           <Row className="mb-3">
             <label
               htmlFor="example-text-input"

@@ -115,18 +115,23 @@ const AllFilesTable = ({
   };
 
   const handleEditRowClick = async (d) => {
-    console.log(d);
+    let found = false;
     try {
       setSelectedFileId(d.id);
       setUpdateModal(true);
       setCSANumber(d?.CSA);
       setBarcode(d?.barcode);
+      setTypeOfRequest(d.typeOfRequest);
       typeOfRequestData.forEach((data) => {
-        console.log(data);
-        if (data.name.toLowerCase() === d?.typeOfRequest.toLowerCase()) {
+        if (data.value.toLowerCase() === d?.typeOfRequest.toLowerCase()) {
+          found = true;
           setTypeOfRequest(data);
         }
       });
+      if (!found) {
+        setTypeOfRequest({ label: d.typeOfRequest, value: d.typeOfRequest });
+      }
+
       setNoOfPages(d?.noOfPages);
 
       const dateStr = d.dateOfApplication;
@@ -229,7 +234,6 @@ const AllFilesTable = ({
         params: { pageNumber, pageSize, search },
       });
       if (data?.success) {
-        console.log(data?.data);
         setFiles1(data?.data);
         setTotalRecords1(data.totalRecords); // Store the total records for pagination
       }
@@ -238,16 +242,16 @@ const AllFilesTable = ({
       toast.error(error?.response?.data?.message);
     }
   };
-
   useEffect(() => {
     fetchSearchFiles(currentPage1, pageSize1); // Fetch data on mount or when page/search changes
   }, [currentPage1]);
-
+  useEffect(() => {
+    fetchSearchFiles(currentPage, pageSize); // Fetch data on mount or when page/search changes
+  }, [currentPage]);
   const handleSearchChange = (event) => {
     setSearch(event.target.value);
     setCurrentPage(1); // Reset to first page on new search
   };
-  console.log(files1);
   const LoadedTemplates = files1?.map((d, i) => (
     <tr
       key={i}
