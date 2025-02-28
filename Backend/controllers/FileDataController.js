@@ -22,7 +22,7 @@ export const saveFileDataController = async (req, res) => {
   if (!CSA) {
     return res.status(400).json({ success: false, message: "CSA is required" });
   }
-  if (!noOfPages) {
+  if (noOfPages === undefined || noOfPages === null || noOfPages === "") {
     return res
       .status(400)
       .json({ success: false, message: "No of pages is required" });

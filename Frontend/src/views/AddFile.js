@@ -71,7 +71,7 @@ const AddFile = () => {
   const [barcodeUrl, setBarcodeUrl] = useState("");
   const [message, setMessage] = useState("");
   const [typeOfRequest, setTypeOfRequest] = useState(null);
-  const [noOfPages, setNoOfPages] = useState("");
+  const [noOfPages, setNoOfPages] = useState(0);
   const [dateOfApplication, setDateOfApplication] = useState("");
   const [loader, setLoader] = useState(false);
   const [barcode, setBarcode] = useState("");
