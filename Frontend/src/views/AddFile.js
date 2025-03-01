@@ -196,8 +196,8 @@ const AddFile = () => {
       if (data?.success) {
         toast.success(data?.message);
         setCSANumber("");
-        setNoOfPages("");
-        setBarcode("");
+        setNoOfPages(0);
+        setBarcode(+barcode + 1);
         barcodeInputRef.current.focus();
         fetchAllFiles();
       } else {

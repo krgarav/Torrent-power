@@ -393,7 +393,7 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
- 
+
   const handleFileSelectFromBarcode = async (barcode) => {
     try {
       const data = await getFileFromBarcode({ barcode });
@@ -445,6 +445,9 @@ const Warehouse = () => {
                       classNamePrefix="select2-selection"
                       placeholder="Enter barcode to search"
                     />
+                    <small style={{ float: "right" }}>
+                      *Press alt + s for next barcode
+                    </small>
 
                     {!selectedBarcode && (
                       <span style={{ color: "red", display: spanDisplay }}>
