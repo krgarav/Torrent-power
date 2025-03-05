@@ -254,9 +254,11 @@ const AddFile = () => {
   const handleChange = (event) => {
     // Get the value from the input field
     const scannedValue = event.target.value.trim();
-
+    if (/^\d*$/.test(scannedValue)) {
+      setBarcode(scannedValue);
+    }
     // Update the barcode state with the scanned value
-    setBarcode(scannedValue);
+    // setBarcode(scannedValue);
 
     // Optionally, clear the input field after processing
     // event.target.value = ''; // Uncomment this line if you want to clear the field after scanning
@@ -405,7 +407,7 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="number"
+                        type="text"
                         className="form-control"
                         value={barcode}
                         ref={barcodeInputRef}
@@ -430,7 +432,7 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="number"
+                        type="text"
                         className="form-control"
                         placeholder="Enter Customer Service Number"
                         value={CSANumber}
