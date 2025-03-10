@@ -94,6 +94,8 @@ const Warehouse = () => {
           setSelectedBarcode(data?.data);
           setCSAData([data?.data]);
           setSelectedCSA(data?.data);
+          getOldDataWithSameCsa(data?.data);
+          
         } else {
           toast.warning("No data available for next barcode");
         }
@@ -105,29 +107,29 @@ const Warehouse = () => {
     // const res= await  handleFileSelectFromBarcode();
     // console.log(res)
   };
-  useEffect(() => {
-    console.log(selectedCSA);
-    const handleKeyDown = (event) => {
-      // Check if Shift and N are pressed
-      if (event.altKey && event.key === "s") {
-        if (selectedBarcode.length !== 0) {
-          console.log("barcode selected");
-          console.log(+selectedBarcode.barcode + 1);
-          loadData();
-        } else {
-          console.log("no barcode selected");
-        }
-      }
-    };
+  // useEffect(() => {
+  //   console.log(selectedCSA);
+  //   const handleKeyDown = (event) => {
+  //     // Check if Shift and N are pressed
+  //     if (event.altKey && event.key === "s") {
+  //       if (selectedBarcode.length !== 0) {
+  //         console.log("barcode selected");
+  //         console.log(+selectedBarcode.barcode + 1);
+  //         loadData();
+  //       } else {
+  //         console.log("no barcode selected");
+  //       }
+  //     }
+  //   };
 
-    // Add the event listener
-    window.addEventListener("keydown", handleKeyDown);
+  //   // Add the event listener
+  //   window.addEventListener("keydown", handleKeyDown);
 
-    // Cleanup the event listener on unmount
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [selectedBarcode]);
+  //   // Cleanup the event listener on unmount
+  //   return () => {
+  //     window.removeEventListener("keydown", handleKeyDown);
+  //   };
+  // }, [selectedBarcode]);
   useEffect(() => {
     // fetchUsers();
     // getAllFiles();
@@ -198,9 +200,12 @@ const Warehouse = () => {
   const handleAddFile = () => {
     if (selectedCSA == "") {
       toast.error("Kindly Select the CSA Number");
-    } else if (fileData) {
-      toast.error("Warehousing is already done of this file");
-    } else {
+    } 
+    
+    // else if (fileData) {
+    //   toast.error("Warehousing is already done of this file");
+    // }
+     else {
       if (csaOldRecord?.length > 0) {
         setBoxNumber(csaOldRecord[0]?.boxNumber);
         setShelfNumber(csaOldRecord[0]?.shelfNumber);
@@ -285,12 +290,13 @@ const Warehouse = () => {
       if (data?.success) {
         toast.success(data?.message);
         setAddFileModal(false);
-        setCsaOldRecord(null);
-        setBoxNumber(null)
-        setRackNumber(null)
-        setShelfNumber(null)
-        setFloorNumber(null)
+        // setCsaOldRecord(null);
+        // setBoxNumber(null)
+        // setRackNumber(null)
+        // setShelfNumber(null)
+        // setFloorNumber(null)
         loadData();
+        // handleBarcodeChange()
         // Reset state values only if the API call is successful
       } else {
         toast.error(data?.message);
@@ -416,7 +422,6 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || "Something went wrong");
     }
   };
-  console.log(CSAData);
   return (
     <>
       <NormalHeader />
