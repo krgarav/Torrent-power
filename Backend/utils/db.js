@@ -1,20 +1,29 @@
-import { Sequelize } from "sequelize";
+import { Sequelize } from 'sequelize';
+import dotenv from 'dotenv';
 
-export const sequelize = new Sequelize("torrentpower", "root", "root", {
-    dialect: "mysql",
-    // host: "database",
-    // port: 3307
-    host: "localhost",
-});
+dotenv.config(); // VERY IMPORTANT
 
-async function fun() {
-    try {
-        await sequelize.authenticate();
-        console.log('Db connection established successfully');
-    } catch (error) {
-        console.log("Unable to create db connection", error);
-    }
+const sequelize = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USER,
+  process.env.DB_PASSWORD,
+  {
+    host: process.env.DB_HOST,
+    port: process.env.DB_PORT,
+    dialect: 'mysql',
+    logging: false,
+  }
+);
+
+async function connectDB() {
+  try {
+    await sequelize.authenticate();
+    console.log('DB connection established successfully');
+  } catch (error) {
+    console.error('Unable to create db connection:', error.message);
+  }
 }
-fun();
+
+connectDB();
 
 export default sequelize;

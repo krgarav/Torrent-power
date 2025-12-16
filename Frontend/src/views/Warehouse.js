@@ -17,47 +17,52 @@ import {
   Row,
   UncontrolledTooltip,
   Button,
-} from "reactstrap";
+} from 'reactstrap';
 // core components
-import Header from "components/Headers/Header.js";
-import NormalHeader from "components/Headers/NormalHeader";
-import { Modal } from "react-bootstrap";
-import { useEffect, useState } from "react";
-import Select from "react-select";
-import { fetchAllUsers } from "helper/userManagment_helper";
-import { toast } from "react-toastify";
-import { addFiletoWarehouse } from "helper/warehouse_helper";
-import { getAllBarcodes } from "helper/barcode_helper";
-import { issueFile } from "helper/warehouse_helper";
-import { returnFile } from "helper/warehouse_helper";
-import { getFileDataFromBarcode } from "helper/warehouse_helper";
-import { getAllFilesData } from "helper/fileData_helper";
-import { getWarehousingRecord } from "helper/warehouse_helper";
-import Loader from "components/Loader/Loader";
-import { getFileFromCSA } from "helper/fileData_helper";
-import { getFileFromBarcode } from "helper/fileData_helper";
+import Header from 'components/Headers/Header.js';
+import NormalHeader from 'components/Headers/NormalHeader';
+import { Modal } from 'react-bootstrap';
+import { useEffect, useState } from 'react';
+import Select from 'react-select';
+import { fetchAllUsers } from 'helper/userManagment_helper';
+import { getAllWarehouses } from '../helper/warehouseSetting_helper';
+
+import { toast } from 'react-toastify';
+import { addFiletoWarehouse } from 'helper/warehouse_helper';
+import { getAllBarcodes } from 'helper/barcode_helper';
+import { issueFile } from 'helper/warehouse_helper';
+import { returnFile } from 'helper/warehouse_helper';
+import { getFileDataFromBarcode } from 'helper/warehouse_helper';
+import { getAllFilesData } from 'helper/fileData_helper';
+import { getWarehousingRecord } from 'helper/warehouse_helper';
+import Loader from 'components/Loader/Loader';
+import { getFileFromCSA } from 'helper/fileData_helper';
+import { getFileFromBarcode } from 'helper/fileData_helper';
 
 const Warehouse = () => {
-  const [selectedCSA, setSelectedCSA] = useState("");
+  const [selectedCSA, setSelectedCSA] = useState('');
   const [addFileModal, setAddFileModal] = useState(false);
   const [issueFileModal, setIssueFileModal] = useState(false);
   const [returnFileModal, setReturnFileModal] = useState(false);
-  const [boxNumber, setBoxNumber] = useState("");
-  const [shelfNumber, setShelfNumber] = useState("");
-  const [rackNumber, setRackNumber] = useState("");
-  const [floorNumber, setFloorNumber] = useState("1");
-  const [fileIssueReason, setFileIssueReason] = useState("");
-  const [fileIssueTo, setFileIssueTo] = useState("");
+  const [boxNumber, setBoxNumber] = useState('');
+  const [shelfNumber, setShelfNumber] = useState('');
+  const [rackNumber, setRackNumber] = useState('');
+  const [floorNumber, setFloorNumber] = useState('1');
+  const [fileIssueReason, setFileIssueReason] = useState('');
+  const [fileIssueTo, setFileIssueTo] = useState('');
   const [loader, setLoader] = useState(false);
   const [allUsers, setAllUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState("");
+  const [selectedUser, setSelectedUser] = useState('');
 
-  const [spanDisplay, setSpanDisplay] = useState("none");
+  const [spanDisplay, setSpanDisplay] = useState('none');
   const [CSAData, setCSAData] = useState([]);
   const [fileData, setFileData] = useState({});
-  const [selectedBarcode, setSelectedBarcode] = useState("");
-  const [issueTo, setIssueTo] = useState("");
+  const [selectedBarcode, setSelectedBarcode] = useState('');
+  const [issueTo, setIssueTo] = useState('');
   const [csaOldRecord, setCsaOldRecord] = useState(null);
+  const [warehouseList, setWarehouseList] = useState([]);
+  const [selectedWarehouse, setSelectedWarehouse] = useState(null);
+  const [floorOptions, setFloorOptions] = useState([]);
 
   const fetchUsers = async () => {
     try {
@@ -67,7 +72,7 @@ const Warehouse = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      toast.error('Something went wrong');
     }
   };
   const getAllFiles = async () => {
@@ -78,7 +83,7 @@ const Warehouse = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
+      toast.error('Something went wrong');
     }
   };
   useEffect(() => {
@@ -95,12 +100,12 @@ const Warehouse = () => {
             setSelectedCSA(data?.data);
             setSelectedBarcode(data?.data);
           } else {
-            toast.warning("No data available for next barcode");
+            toast.warning('No data available for next barcode');
           }
         }
       } catch (error) {
         console.log(error);
-        toast.error(error?.response?.data?.message || "Something went wrong");
+        toast.error(error?.response?.data?.message || 'Something went wrong');
       }
       // const res= await  handleFileSelectFromBarcode();
       // console.log(res)
@@ -108,29 +113,49 @@ const Warehouse = () => {
     console.log(selectedCSA);
     const handleKeyDown = (event) => {
       // Check if Shift and N are pressed
-      if (event.altKey && event.key === "s") {
+      if (event.altKey && event.key === 's') {
         if (selectedBarcode.length !== 0) {
-          console.log("barcode selected");
+          console.log('barcode selected');
           console.log(+selectedBarcode.barcode + 1);
           loadData();
         } else {
-          console.log("no barcode selected");
+          console.log('no barcode selected');
         }
       }
     };
 
     // Add the event listener
-    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
 
     // Cleanup the event listener on unmount
     return () => {
-      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
     };
   }, [selectedBarcode]);
   useEffect(() => {
     // fetchUsers();
     // getAllFiles();
   }, []);
+
+  useEffect(() => {
+    fetchWarehouses();
+  }, []);
+
+  const fetchWarehouses = async () => {
+    try {
+      const res = await getAllWarehouses();
+      if (res?.success) {
+        const options = res.data.map((w) => ({
+          value: w.id,
+          label: w.warehouse_name,
+          totalFloors: w.total_floors,
+        }));
+        setWarehouseList(options);
+      }
+    } catch {
+      toast.error('Failed to load warehouses');
+    }
+  };
 
   const getFileData = async (selectedCSA) => {
     try {
@@ -195,51 +220,95 @@ const Warehouse = () => {
   };
 
   const handleAddFile = () => {
-    if (selectedCSA == "") {
-      toast.error("Kindly Select the CSA Number");
+    if (selectedCSA == '') {
+      toast.error('Kindly Select the CSA Number');
     } else if (fileData) {
-      toast.error("Warehousing is already done of this file");
+      toast.error('Warehousing is already done of this file');
     } else {
       if (csaOldRecord.length > 0) {
         setBoxNumber(csaOldRecord[0]?.boxNumber);
         setShelfNumber(csaOldRecord[0]?.shelfNumber);
         setRackNumber(csaOldRecord[0]?.rackNumber);
         setFloorNumber(csaOldRecord[0]?.floorNumber);
-        toast.success("File with this CSA already exists");
+        toast.success('File with this CSA already exists');
       }
       setAddFileModal(true);
     }
   };
   const handleIssueFile = () => {
-    if (selectedCSA == "") {
-      toast.error("Kindly Select the CSA Number");
-    } else {
-      if (fileData) {
-        setBoxNumber(fileData?.boxNumber);
-        setShelfNumber(fileData?.shelfNumber);
-        setRackNumber(fileData?.rackNumber);
-        setFloorNumber(fileData?.floorNumber);
-        setIssueFileModal(true);
-      } else {
-        toast.error("Warehousing is not done of this file");
-      }
+    if (!selectedCSA) {
+      toast.error('Kindly Select the CSA Number');
+      return;
     }
+
+    if (!fileData) {
+      toast.error('Warehousing is not done of this file');
+      return;
+    }
+
+    setBoxNumber(fileData.boxNumber);
+    setShelfNumber(fileData.shelfNumber);
+    setRackNumber(fileData.rackNumber);
+    setFloorNumber(fileData.floorNumber);
+
+    // ✅ SET WAREHOUSE
+    const warehouse = warehouseList.find(
+      (w) => w.value === fileData.warehouseId
+    );
+
+    if (!warehouse) {
+      toast.error('Warehouse not found');
+      return;
+    }
+
+    setSelectedWarehouse(warehouse);
+
+    // ✅ SET FLOOR OPTIONS
+    const floors = Array.from({ length: warehouse.totalFloors }, (_, i) => ({
+      value: String(i + 1),
+      label: String(i + 1),
+    }));
+    setFloorOptions(floors);
+
+    setIssueFileModal(true);
   };
 
   const handleReturnFile = () => {
-    if (selectedCSA == "") {
-      toast.error("Kindly Select the CSA Number");
-    } else {
-      if (fileData) {
-        setBoxNumber(fileData?.boxNumber);
-        setShelfNumber(fileData?.shelfNumber);
-        setRackNumber(fileData?.rackNumber);
-        setFloorNumber(fileData?.floorNumber);
-        setReturnFileModal(true);
-      } else {
-        toast.error("Warehousing is not done of this file");
-      }
+    if (!selectedCSA) {
+      toast.error('Kindly Select the CSA Number');
+      return;
     }
+
+    if (!fileData) {
+      toast.error('Warehousing is not done of this file');
+      return;
+    }
+
+    setBoxNumber(fileData.boxNumber);
+    setShelfNumber(fileData.shelfNumber);
+    setRackNumber(fileData.rackNumber);
+    setFloorNumber(String(fileData.floorNumber));
+
+    // ✅ SET WAREHOUSE
+    const warehouse = warehouseList.find(
+      (w) => w.value === fileData.warehouseId
+    );
+
+    if (!warehouse) {
+      toast.error('Warehouse not found');
+      return;
+    }
+
+    setSelectedWarehouse(warehouse);
+
+    // ✅ SET FLOOR OPTIONS
+    const floors = Array.from({ length: warehouse.totalFloors }, (_, i) => ({
+      value: String(i + 1),
+      label: String(i + 1),
+    }));
+    setFloorOptions(floors);
+
+    setReturnFileModal(true);
   };
 
   const handleAddFileSubmit = async () => {
@@ -249,18 +318,22 @@ const Warehouse = () => {
     let validatedFloorNumber = floorNumber;
 
     if (!shelfNumber) {
-      validatedShelfNumber = "0";
+      validatedShelfNumber = '0';
     }
     if (!rackNumber) {
-      validatedRackNumber = "0";
+      validatedRackNumber = '0';
     }
     if (!floorNumber) {
-      validatedFloorNumber = "0";
+      validatedFloorNumber = '0';
+    }
+    if (!selectedWarehouse) {
+      toast.error('Please select a warehouse');
+      return;
     }
 
     // Check if boxNumber is present
     if (!boxNumber) {
-      setSpanDisplay("inline");
+      setSpanDisplay('inline');
       return;
     }
 
@@ -278,6 +351,9 @@ const Warehouse = () => {
         rackNumber: validatedRackNumber,
         floorNumber: validatedFloorNumber,
         selectedCSA,
+        warehouseId: selectedWarehouse.value,
+        warehouseId: selectedWarehouse.value,
+        warehouseName: selectedWarehouse.label,
       });
       setLoader(false);
       if (data?.success) {
@@ -289,14 +365,14 @@ const Warehouse = () => {
       }
     } catch (error) {
       setLoader(false);
-      console.error("Error occurred while adding file to warehouse:", error);
-      toast.error("Something went wrong");
+      console.error('Error occurred while adding file to warehouse:', error);
+      toast.error('Something went wrong');
     }
   };
 
   const handleIssueFileSubmit = async () => {
     if (!fileIssueReason || !issueTo) {
-      setSpanDisplay("inline");
+      setSpanDisplay('inline');
     } else {
       try {
         setLoader(true);
@@ -305,16 +381,16 @@ const Warehouse = () => {
         if (data?.success) {
           toast.success(data?.message);
           setIssueFileModal(false);
-          setFileIssueReason("");
-          setSelectedUser("");
-          setSelectedCSA("");
+          setFileIssueReason('');
+          setSelectedUser('');
+          setSelectedCSA('');
         } else {
           toast.error(data?.message);
         }
       } catch (error) {
         setLoader(false);
         console.log(error);
-        toast.error("something went wrong");
+        toast.error('something went wrong');
       }
     }
   };
@@ -325,18 +401,18 @@ const Warehouse = () => {
     let validatedFloorNumber = floorNumber;
 
     if (!shelfNumber) {
-      validatedShelfNumber = "0";
+      validatedShelfNumber = '0';
     }
     if (!rackNumber) {
-      validatedRackNumber = "0";
+      validatedRackNumber = '0';
     }
     if (!floorNumber) {
-      validatedFloorNumber = "0";
+      validatedFloorNumber = '0';
     }
 
     // Check if boxNumber is present
     if (!boxNumber) {
-      setSpanDisplay("inline");
+      setSpanDisplay('inline');
       return;
     }
 
@@ -356,17 +432,17 @@ const Warehouse = () => {
       if (data?.success) {
         toast.success(data?.message);
         setReturnFileModal(false);
-        setBoxNumber("");
-        setShelfNumber("");
-        setRackNumber("");
-        setSelectedCSA("");
+        setBoxNumber('');
+        setShelfNumber('');
+        setRackNumber('');
+        setSelectedCSA('');
       } else {
         toast.error(data?.message);
       }
     } catch (error) {
       setLoader(false);
       console.log(error);
-      toast.error("something went wrong");
+      toast.error('something went wrong');
     }
   };
 
@@ -390,10 +466,10 @@ const Warehouse = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
- 
+
   const handleFileSelectFromBarcode = async (barcode) => {
     try {
       const data = await getFileFromBarcode({ barcode });
@@ -405,30 +481,33 @@ const Warehouse = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
   console.log(CSAData);
   return (
     <>
       <NormalHeader />
-      <Container className="mt--7" fluid>
-        {loader ? <Loader /> : ""}
+      <Container
+        className='mt--7'
+        fluid
+      >
+        {loader ? <Loader /> : ''}
         <Row>
-          <div className="col">
-            <Card className="shadow">
-              <CardHeader className="border-0">
-                <div className="d-flex justify-content-between">
-                  <h1 className="mt-2">Warehouse Section</h1>
+          <div className='col'>
+            <Card className='shadow'>
+              <CardHeader className='border-0'>
+                <div className='d-flex justify-content-between'>
+                  <h1 className='mt-2'>Warehouse Section</h1>
                 </div>
-                <Row className="mb-3">
+                <Row className='mb-3'>
                   <label
-                    htmlFor="example-text-input"
-                    className="col-md-2 col-form-label"
+                    htmlFor='example-text-input'
+                    className='col-md-2 col-form-label'
                   >
                     Barcode
                   </label>
-                  <div className="col-md-10">
+                  <div className='col-md-10'>
                     <Select
                       value={selectedBarcode}
                       onChange={handleBarcodeChange}
@@ -442,25 +521,25 @@ const Warehouse = () => {
                       // filterOption={customFilterOption} // Custom filter for sorting by search input
                       getOptionLabel={(option) => option?.barcode}
                       getOptionValue={(option) => option?.id?.toString()} // Convert to string if id is a number
-                      classNamePrefix="select2-selection"
-                      placeholder="Enter barcode to search"
+                      classNamePrefix='select2-selection'
+                      placeholder='Enter barcode to search'
                     />
 
                     {!selectedBarcode && (
-                      <span style={{ color: "red", display: spanDisplay }}>
+                      <span style={{ color: 'red', display: spanDisplay }}>
                         This feild is required
                       </span>
                     )}
                   </div>
                 </Row>
-                <Row className="mb-3">
+                <Row className='mb-3'>
                   <label
-                    htmlFor="example-text-input"
-                    className="col-md-2 col-form-label"
+                    htmlFor='example-text-input'
+                    className='col-md-2 col-form-label'
                   >
                     CSA Number
                   </label>
-                  <div className="col-md-10">
+                  <div className='col-md-10'>
                     <Select
                       value={selectedCSA}
                       onChange={handleSelectCSA}
@@ -468,32 +547,32 @@ const Warehouse = () => {
                       options={CSAData}
                       getOptionLabel={(option) => option?.CSA}
                       getOptionValue={(option) => option?.id?.toString()} // Convert to string if classId is a number
-                      classNamePrefix="select2-selection"
-                      placeholder="Search barcode to get CSA"
+                      classNamePrefix='select2-selection'
+                      placeholder='Search barcode to get CSA'
                     />
                   </div>
                 </Row>
-                <div className="functions mt-2 d-flex justify-content-end">
+                <div className='functions mt-2 d-flex justify-content-end'>
                   <Button
-                    className=""
-                    color="success"
-                    type="button"
+                    className=''
+                    color='success'
+                    type='button'
                     onClick={handleAddFile}
                   >
                     Add File
                   </Button>
                   <Button
-                    className=""
-                    color="primary"
-                    type="button"
+                    className=''
+                    color='primary'
+                    type='button'
                     onClick={handleIssueFile}
                   >
                     Issue File
                   </Button>
                   <Button
-                    className=""
-                    color="info"
-                    type="button"
+                    className=''
+                    color='info'
+                    type='button'
                     onClick={handleReturnFile}
                   >
                     Return File
@@ -507,12 +586,12 @@ const Warehouse = () => {
       {/* Modal for add the file  */}
       <Modal
         show={addFileModal}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
+        size='lg'
+        aria-labelledby='contained-modal-title-vcenter'
         centered
       >
         <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">Add File</Modal.Title>
+          <Modal.Title id='contained-modal-title-vcenter'>Add File</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {csaOldRecord && (
@@ -524,9 +603,9 @@ const Warehouse = () => {
 
               {csaOldRecord.map((d, i) => (
                 <>
-                  <div className="m-4">
+                  <div className='m-4'>
                     <b>{i + 1}.</b>
-                    <div className="mx-3">
+                    <div className='mx-3'>
                       <h4>Barcode: {d?.barcode}</h4>
                       <h4>Type of Application: {d?.typeOfApplication}</h4>
                       <h4>Date of Application: {d?.dateOfApplication}</h4>
@@ -537,94 +616,128 @@ const Warehouse = () => {
             </>
           )}
 
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Box Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={boxNumber}
                 onChange={(e) => setBoxNumber(e.target.value)}
               />
               {!boxNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
 
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Rack Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={rackNumber}
                 onChange={(e) => setRackNumber(e.target.value)}
               />
               {!rackNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
 
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Shelf Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={shelfNumber}
                 onChange={(e) => setShelfNumber(e.target.value)}
               />
               {!shelfNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
 
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Floor Number
             </label>
-            <div className="col-md-10">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Floor Number"
-                value={floorNumber}
-                onChange={(e) => setFloorNumber(e.target.value)}
-                readOnly={true}
+            <div className='col-md-10'>
+              <Select
+                value={
+                  floorOptions.find((f) => f.value === floorNumber) || null
+                }
+                onChange={(option) => setFloorNumber(option.value)}
+                options={floorOptions}
+                placeholder='Select Floor'
+                isDisabled={!selectedWarehouse}
+                classNamePrefix='select2-selection'
               />
               {!floorNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
-                  This feild is required
+                <span style={{ color: 'red', display: spanDisplay }}>
+                  This field is required
+                </span>
+              )}
+            </div>
+          </Row>
+
+          <Row className='mb-3'>
+            <label className='col-md-2 col-form-label'>Warehouse</label>
+            <div className='col-md-10'>
+              <Select
+                value={selectedWarehouse}
+                onChange={(option) => {
+                  setSelectedWarehouse(option);
+
+                  // generate floor list based on warehouse total floors
+                  const floors = Array.from(
+                    { length: option.totalFloors },
+                    (_, i) => ({
+                      value: (i + 1).toString(),
+                      label: `${i + 1}`,
+                    })
+                  );
+
+                  setFloorOptions(floors);
+                  setFloorNumber(''); // reset until user selects
+                }}
+                options={warehouseList}
+                placeholder='Select Warehouse'
+                classNamePrefix='select2-selection'
+              />
+              {!selectedWarehouse && (
+                <span style={{ color: 'red', display: spanDisplay }}>
+                  This field is required
                 </span>
               )}
             </div>
@@ -632,208 +745,222 @@ const Warehouse = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type="button"
-            color="success"
+            type='button'
+            color='success'
             onClick={handleAddFileSubmit}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Add
-          </Button>{" "}
+          </Button>{' '}
           <Button
-            type="button"
-            color="primary"
+            type='button'
+            color='primary'
             onClick={() => setAddFileModal(false)}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Close
-          </Button>{" "}
+          </Button>{' '}
         </Modal.Footer>
       </Modal>
 
       {/* Modal for Issue the file  */}
       <Modal
         show={issueFileModal}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
+        size='lg'
+        aria-labelledby='contained-modal-title-vcenter'
         centered
       >
         <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">
+          <Modal.Title id='contained-modal-title-vcenter'>
             Issue File
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Reason
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Reason for Issuance of the File"
+                type='text'
+                className='form-control'
+                placeholder='Enter Reason for Issuance of the File'
                 value={fileIssueReason}
                 onChange={(e) => setFileIssueReason(e.target.value)}
               />
               {!fileIssueReason && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Select Issue To
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Issue to"
+                type='text'
+                className='form-control'
+                placeholder='Enter Issue to'
                 value={issueTo}
                 onChange={(e) => setIssueTo(e.target.value)}
               />
               {!issueTo && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
 
-          <div className="m-auto">
+          <div className='m-auto'>
             <h1>File Data</h1>
             <h4>Box No: {fileData?.boxNumber}</h4>
             <h4>Rack No: {fileData?.rackNumber}</h4>
             <h4>Shelf No: {fileData?.shelfNumber}</h4>
             <h4>Floor No: {fileData?.floorNumber}</h4>
+            <h4>Warehouse Name: {selectedWarehouse?.label}</h4>
           </div>
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type="button"
-            color="primary"
+            type='button'
+            color='primary'
             onClick={() => setIssueFileModal(false)}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Close
-          </Button>{" "}
+          </Button>{' '}
           <Button
-            type="button"
-            color="success"
+            type='button'
+            color='success'
             onClick={handleIssueFileSubmit}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Issue
-          </Button>{" "}
+          </Button>{' '}
         </Modal.Footer>
       </Modal>
 
-      {/* Modal for Return the file  */}
       <Modal
         show={returnFileModal}
-        size="lg"
-        aria-labelledby="contained-modal-title-vcenter"
+        size='lg'
+        aria-labelledby='contained-modal-title-vcenter'
         centered
       >
         <Modal.Header>
-          <Modal.Title id="contained-modal-title-vcenter">
+          <Modal.Title id='contained-modal-title-vcenter'>
             Return File
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Box Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={boxNumber}
                 onChange={(e) => setBoxNumber(e.target.value)}
               />
               {!boxNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Shelf Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={shelfNumber}
                 onChange={(e) => setShelfNumber(e.target.value)}
               />
               {!shelfNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
-          <Row className="mb-3">
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Rack Number
             </label>
-            <div className="col-md-10">
+            <div className='col-md-10'>
               <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Box File Number"
+                type='text'
+                className='form-control'
+                placeholder='Enter Box File Number'
                 value={rackNumber}
                 onChange={(e) => setRackNumber(e.target.value)}
               />
               {!rackNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
             </div>
           </Row>
-          <Row className="mb-3">
+          <Row className='mb-3'>
+            <label className='col-md-2 col-form-label'>Warehouse</label>
+            <div className='col-md-10'>
+              <input
+                type='text'
+                className='form-control'
+                value={selectedWarehouse?.label || ''}
+                disabled
+              />
+            </div>
+          </Row>
+
+          <Row className='mb-3'>
             <label
-              htmlFor="example-text-input"
-              className="col-md-2 col-form-label"
+              htmlFor='example-text-input'
+              className='col-md-2 col-form-label'
             >
               Floor Number
             </label>
-            <div className="col-md-10">
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Enter Floor Number"
-                value={floorNumber}
-                onChange={(e) => setFloorNumber(e.target.value)}
-                readOnly={true}
+            <div className='col-md-10'>
+              <Select
+                value={
+                  floorOptions.find((f) => f.value === floorNumber) || null
+                }
+                onChange={(option) => setFloorNumber(option.value)}
+                options={floorOptions}
+                placeholder='Select Floor'
+                isDisabled={!selectedWarehouse}
+                classNamePrefix='select2-selection'
               />
               {!floorNumber && (
-                <span style={{ color: "red", display: spanDisplay }}>
-                  This feild is required
+                <span style={{ color: 'red', display: spanDisplay }}>
+                  This field is required
                 </span>
               )}
             </div>
@@ -841,21 +968,21 @@ const Warehouse = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type="button"
-            color="primary"
+            type='button'
+            color='primary'
             onClick={() => setReturnFileModal(false)}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Close
-          </Button>{" "}
+          </Button>{' '}
           <Button
-            type="button"
-            color="success"
+            type='button'
+            color='success'
             onClick={handleReturnFileSubmit}
-            className="waves-effect waves-light"
+            className='waves-effect waves-light'
           >
             Return
-          </Button>{" "}
+          </Button>{' '}
         </Modal.Footer>
       </Modal>
     </>
