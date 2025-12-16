@@ -232,7 +232,6 @@ const Warehouse = () => {
         setFloorNumber(csaOldRecord[0]?.floorNumber);
         toast.success('File with this CSA already exists');
       }
-      setFloorNumber(1)
       setAddFileModal(true);
     }
   };
@@ -353,20 +352,12 @@ const Warehouse = () => {
         floorNumber: validatedFloorNumber,
         selectedCSA,
         warehouseId: selectedWarehouse.value,
-        warehouseId: selectedWarehouse.value,
         warehouseName: selectedWarehouse.label,
       });
       setLoader(false);
       if (data?.success) {
         toast.success(data?.message);
         setAddFileModal(false);
-        // setCsaOldRecord(null);
-        // setBoxNumber(null)
-        // setRackNumber(null)
-        // setShelfNumber(null)
-        // setFloorNumber(null)
-        loadData();
-        // handleBarcodeChange()
         // Reset state values only if the API call is successful
       } else {
         toast.error(data?.message);
@@ -492,6 +483,7 @@ const Warehouse = () => {
       toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
+  console.log(CSAData);
   return (
     <>
       <NormalHeader />
@@ -531,7 +523,6 @@ const Warehouse = () => {
                       classNamePrefix='select2-selection'
                       placeholder='Enter barcode to search'
                     />
-                    
 
                     {!selectedBarcode && (
                       <span style={{ color: 'red', display: spanDisplay }}>

@@ -32,7 +32,11 @@ const builtPath = path.join(__dirname, '../', './Frontend', 'build');
 // Middleware setup
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://10.144.6.12:3000'],
+    origin: [
+      'http://localhost:3000',
+      'http://10.144.6.12:3000',
+      'http://192.168.1.44:3000',
+    ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
