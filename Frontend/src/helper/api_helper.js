@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 //pass new generated access token here
 
 //apply base url for axios
-const API_URL = 'http://localhost:5000';
+const API_URL = process.env.REACT_APP_BACKEND_URL || 'http://192.168.1.44:5000';
 
 const axiosApi = axios.create({
   baseURL: API_URL,
