@@ -54,3 +54,73 @@ export const getWarehouses = async (req, res) => {
     });
   }
 };
+
+/* ================= UPDATE WAREHOUSE ================= */
+export const updateWarehouse = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { warehouseName, totalFloors } = req.body;
+
+    if (!warehouseName || !totalFloors) {
+      return res.status(400).json({
+        success: false,
+        message: 'Warehouse name and floors are required',
+      });
+    }
+
+    const warehouse = await WarehouseMaster.findByPk(id);
+
+    if (!warehouse) {
+      return res.status(404).json({
+        success: false,
+        message: 'Warehouse not found',
+      });
+    }
+
+    await warehouse.update({
+      warehouse_name: warehouseName,
+      total_floors: totalFloors,
+      updated_by: 'system',
+    });
+
+    return res.json({
+      success: true,
+      message: 'Warehouse updated successfully',
+    });
+  } catch (error) {
+    console.error('Update Warehouse Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to update warehouse',
+    });
+  }
+};
+
+/* ================= DELETE WAREHOUSE ================= */
+export const deleteWarehouse = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const warehouse = await WarehouseMaster.findByPk(id);
+
+    if (!warehouse) {
+      return res.status(404).json({
+        success: false,
+        message: 'Warehouse not found',
+      });
+    }
+
+    await warehouse.destroy();
+
+    return res.json({
+      success: true,
+      message: 'Warehouse deleted successfully',
+    });
+  } catch (error) {
+    console.error('Delete Warehouse Error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete warehouse',
+    });
+  }
+};

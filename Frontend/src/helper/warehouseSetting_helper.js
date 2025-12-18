@@ -1,4 +1,4 @@
-import { get, post, put, del } from "./api_helper";
+import { get, post, put, del } from './api_helper';
 
 /* ===============================
    WAREHOUSE SETTING APIs
@@ -6,20 +6,20 @@ import { get, post, put, del } from "./api_helper";
 
 /* GET ALL WAREHOUSES */
 export const getAllWarehouses = async () => {
-  return await get("/api/warehouse-setting");
+  return await get('/warehouse-setting');
 };
 
 /* CREATE WAREHOUSE */
 export const createWarehouse = async (payload) => {
-  return await post("/api/warehouse-setting", payload);
+  return await post('/warehouse-setting', payload);
 };
 
 /* UPDATE WAREHOUSE */
 export const updateWarehouse = async (id, payload) => {
-  return await put(`/api/warehouse-setting/${id}`, payload);
+  return await put(`/warehouse-setting/${id}`, payload);
 };
 
 /* DELETE WAREHOUSE */
 export const deleteWarehouse = async (id) => {
-  return await del(`/api/warehouse-setting/${id}`);
+  return await del(`/warehouse-setting/${id}`);
 };

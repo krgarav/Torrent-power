@@ -71,7 +71,7 @@ const AddFile = () => {
   const [barcodeUrl, setBarcodeUrl] = useState("");
   const [message, setMessage] = useState("");
   const [typeOfRequest, setTypeOfRequest] = useState(null);
-  const [noOfPages, setNoOfPages] = useState(0);
+  const [noOfPages, setNoOfPages] = useState("");
   const [dateOfApplication, setDateOfApplication] = useState("");
   const [loader, setLoader] = useState(false);
   const [barcode, setBarcode] = useState("");
@@ -196,8 +196,8 @@ const AddFile = () => {
       if (data?.success) {
         toast.success(data?.message);
         setCSANumber("");
-        setNoOfPages(0);
-        setBarcode(+barcode + 1);
+        setNoOfPages("");
+        setBarcode("");
         barcodeInputRef.current.focus();
         fetchAllFiles();
       } else {
@@ -254,11 +254,9 @@ const AddFile = () => {
   const handleChange = (event) => {
     // Get the value from the input field
     const scannedValue = event.target.value.trim();
-    if (/^\d*$/.test(scannedValue)) {
-      setBarcode(scannedValue);
-    }
+
     // Update the barcode state with the scanned value
-    // setBarcode(scannedValue);
+    setBarcode(scannedValue);
 
     // Optionally, clear the input field after processing
     // event.target.value = ''; // Uncomment this line if you want to clear the field after scanning
@@ -407,7 +405,7 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="text"
+                        type="number"
                         className="form-control"
                         value={barcode}
                         ref={barcodeInputRef}
@@ -432,7 +430,7 @@ const AddFile = () => {
                     </label>
                     <div className="col-md-10">
                       <input
-                        type="text"
+                        type="number"
                         className="form-control"
                         placeholder="Enter Customer Service Number"
                         value={CSANumber}

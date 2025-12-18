@@ -35,9 +35,9 @@ import Tagging from 'views/Tagging';
 import AddFile from 'views/AddFile';
 import Maintainance from 'views/Maintainance';
 import Report from 'views/Report';
+import WarehouseSetting from 'views/WarehouseSetting';
 import DashboardData from 'views/DashboardData';
 import SplitWarehouse from 'views/SplitWarehouse';
-import WarehouseSetting from 'views/WarehouseSetting';
 
 const auth = JSON.parse(localStorage.getItem('auth'));
 const access = auth?.userData?.permissions;
@@ -98,18 +98,6 @@ var routes = [
       ]
     : []),
 
-  ...(access?.wareHouseAccess
-    ? [
-        {
-          path: '/warehouse-setting',
-          name: 'Warehouse Setting',
-          icon: 'ni ni-settings text-orange',
-          component: <WarehouseSetting />,
-          layout: '/admin',
-        },
-      ]
-    : []),
-
   ...(access?.maintainanceAccess
     ? [
         {
@@ -132,6 +120,19 @@ var routes = [
         },
       ]
     : []),
+
+  ...(access?.warehouseSetAccess
+    ? [
+        {
+          path: '/warehouse-setting',
+          name: 'Warehouse Setting',
+          icon: 'ni ni-settings text-orange',
+          component: <WarehouseSetting />,
+          layout: '/admin',
+        },
+      ]
+    : []),
+
   ...(access?.reportAccess
     ? [
         {

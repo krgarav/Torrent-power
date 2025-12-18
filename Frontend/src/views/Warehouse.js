@@ -64,6 +64,9 @@ const Warehouse = () => {
   const [selectedWarehouse, setSelectedWarehouse] = useState(null);
   const [floorOptions, setFloorOptions] = useState([]);
 
+  const LS_WAREHOUSE = 'selectedWarehouse';
+  const LS_FLOOR = 'selectedFloor';
+
   const fetchUsers = async () => {
     try {
       const data = await fetchAllUsers();
@@ -140,6 +143,42 @@ const Warehouse = () => {
   useEffect(() => {
     fetchWarehouses();
   }, []);
+
+  useEffect(() => {
+    if (!addFileModal || warehouseList.length === 0) return;
+
+    const savedWarehouse = localStorage.getItem(LS_WAREHOUSE);
+    const savedFloor = localStorage.getItem(LS_FLOOR);
+
+    if (savedWarehouse) {
+      const parsedWarehouse = JSON.parse(savedWarehouse);
+
+      const warehouse = warehouseList.find(
+        (w) => w.value === parsedWarehouse.value
+      );
+
+      if (warehouse) {
+        setSelectedWarehouse(warehouse);
+
+        const floors = Array.from(
+          { length: warehouse.totalFloors },
+          (_, i) => ({
+            value: String(i + 1),
+            label: String(i + 1),
+          })
+        );
+
+        setFloorOptions(floors);
+
+        // ✅ Floor restore OR default to 1
+        if (savedFloor && floors.find((f) => f.value === savedFloor)) {
+          setFloorNumber(savedFloor);
+        } else {
+          setFloorNumber('1');
+        }
+      }
+    }
+  }, [addFileModal, warehouseList]);
 
   const fetchWarehouses = async () => {
     try {
@@ -696,12 +735,16 @@ const Warehouse = () => {
                 value={
                   floorOptions.find((f) => f.value === floorNumber) || null
                 }
-                onChange={(option) => setFloorNumber(option.value)}
+                onChange={(option) => {
+                  setFloorNumber(option.value);
+                  localStorage.setItem(LS_FLOOR, option.value);
+                }}
                 options={floorOptions}
                 placeholder='Select Floor'
                 isDisabled={!selectedWarehouse}
                 classNamePrefix='select2-selection'
               />
+
               {!floorNumber && (
                 <span style={{ color: 'red', display: spanDisplay }}>
                   This field is required
@@ -718,22 +761,28 @@ const Warehouse = () => {
                 onChange={(option) => {
                   setSelectedWarehouse(option);
 
-                  // generate floor list based on warehouse total floors
+                  // ✅ Save warehouse
+                  localStorage.setItem(LS_WAREHOUSE, JSON.stringify(option));
+
                   const floors = Array.from(
                     { length: option.totalFloors },
                     (_, i) => ({
-                      value: (i + 1).toString(),
-                      label: `${i + 1}`,
+                      value: String(i + 1),
+                      label: String(i + 1),
                     })
                   );
 
                   setFloorOptions(floors);
-                  setFloorNumber(''); // reset until user selects
+
+                  // ✅ Default floor = 1
+                  setFloorNumber('1');
+                  localStorage.setItem(LS_FLOOR, '1');
                 }}
                 options={warehouseList}
                 placeholder='Select Warehouse'
                 classNamePrefix='select2-selection'
               />
+
               {!selectedWarehouse && (
                 <span style={{ color: 'red', display: spanDisplay }}>
                   This field is required

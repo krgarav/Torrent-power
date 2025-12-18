@@ -10,8 +10,6 @@ import taggingRoutes from './routes/taggingRoutes.js';
 import analysisRoutes from './routes/analysisRoutes.js';
 import maintainanceRoutes from './routes/maintainanceRoutes.js';
 import warehouseSettingRoutes from './routes/warehouseSettingRoutes.js';
-import WarehouseMaster from './models/WarehouseMaster.js';
-
 import bwipjs from 'bwip-js';
 import FileData from './models/FileData.js';
 import Warehouse from './models/warehouse.js';
@@ -32,11 +30,7 @@ const builtPath = path.join(__dirname, '../', './Frontend', 'build');
 // Middleware setup
 app.use(
   cors({
-    origin: [
-      'http://localhost:3000',
-      'http://10.144.6.12:3000',
-      'http://192.168.1.44:3000',
-    ],
+    origin: ['http://localhost:3000', 'http://10.144.6.12:3000'],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
@@ -45,7 +39,6 @@ app.use(
 
 // handle preflight explicitly
 app.options('*', cors());
-
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -53,9 +46,8 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(builtPath));
 app.use('/images', express.static(__dirname + '/images'));
 // Routes setup
-app.use('/api', userRoutes);
-app.use('/api', warehouseSettingRoutes);
-// Mount user routes at /api/users
+app.use('/', userRoutes);
+app.use('/', warehouseSettingRoutes); // Mount user routes at /api/users
 app.use('/', fileDataRoutes);
 app.use('/', warehouseRoutes);
 app.use('/', taggingRoutes);

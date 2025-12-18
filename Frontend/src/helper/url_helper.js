@@ -4,19 +4,18 @@
 // const url = "http://192.168.1.17:8000/"
 // export const url2 = "http://192.168.1.17:8000"
 
-// const url = 'http://10.144.6.12:5000/';
-// export const url2 = 'http://10.144.6.12:5000';
+// const url = "http://10.144.6.12:3000/";
+// export const url2 = "http://10.144.6.12:3000";
+// const url = "http://localhost:4000/";
+// export const url2 = "http://localhost:4000";
 
-//const url = 'http://localhost:5000/';
-// export const url2 = 'http://localhost:5000';
-
-const url = 'http://192.168.1.44:5000/';
-export const url2 = 'http://192.168.1.44:5000';
+const url = 'http://localhost:5000/';
+export const url2 = 'http://localhost:5000';
 
 export default url + 'createUser';
 export const UPDATE_USER = url + 'updateUser/';
 export const GET_USERS = url + 'getAllUsers';
-export const LOGIN = url + 'api/login';
+export const LOGIN = url + 'Login';
 export const DELETE_USER = url + 'deleteUser/';
 export const GET_USER_ROLES = url + 'GetUserRole';
 

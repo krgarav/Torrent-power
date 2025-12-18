@@ -2,14 +2,22 @@ import express from 'express';
 import {
   createWarehouse,
   getWarehouses,
+  updateWarehouse,
+  deleteWarehouse,
 } from '../controllers/WarehouseSettingController.js';
 
 const router = express.Router();
 
-/* CREATE WAREHOUSE */
+/* CREATE */
 router.post('/warehouse-setting', createWarehouse);
 
-/* GET ALL WAREHOUSES */
+/* READ */
 router.get('/warehouse-setting', getWarehouses);
+
+/* UPDATE */
+router.put('/warehouse-setting/:id', updateWarehouse);
+
+/* DELETE */
+router.delete('/warehouse-setting/:id', deleteWarehouse);
 
 export default router;

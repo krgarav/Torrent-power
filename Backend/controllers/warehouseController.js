@@ -1,48 +1,35 @@
-import FileData from '../models/FileData.js';
-import Warehouse from '../models/warehouse.js';
+import FileData from "../models/FileData.js";
+import Warehouse from "../models/warehouse.js";
 
-import { Op } from 'sequelize';
+import { Op } from "sequelize";
 export const addFile = async (req, res) => {
-  const {
-    boxNumber,
-    shelfNumber,
-    rackNumber,
-    floorNumber,
-    selectedCSA,
-    warehouseId,
-  } = req.body;
+  const { boxNumber, shelfNumber, rackNumber, floorNumber, selectedCSA } =
+    req.body;
 
   if (!boxNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Box Number is Required' });
+      .json({ success: false, message: "Box Number is Required" });
   }
   if (!shelfNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Shelf Number is Required' });
+      .json({ success: false, message: "Shelf Number is Required" });
   }
   if (!rackNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Rack Number is Required' });
+      .json({ success: false, message: "Rack Number is Required" });
   }
   if (!floorNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'floor Number is Required' });
+      .json({ success: false, message: "floor Number is Required" });
   }
   if (!selectedCSA) {
     return res
       .status(400)
-      .json({ success: false, message: 'CSA or Barcode is Required' });
-  }
-
-  if (!warehouseId) {
-    return res.status(400).json({
-      success: false,
-      message: 'Warehouse is required',
-    });
+      .json({ success: false, message: "CSA or Barcode is Required" });
   }
 
   try {
@@ -54,7 +41,7 @@ export const addFile = async (req, res) => {
       if (check?.currentStatus == true) {
         return res.status(201).json({
           success: true,
-          message: 'File is Already in Warehouse',
+          message: "File is Already in Warehouse",
         });
       }
     }
@@ -65,20 +52,19 @@ export const addFile = async (req, res) => {
       rackNumber: rackNumber,
       floorNumber: floorNumber,
       fileDataId: selectedCSA?.id,
-      warehouseId: warehouseId,
       currentStatus: true,
       createAt: Date.now(),
     });
 
     res.status(201).json({
       success: true,
-      message: 'File Added Successfully',
+      message: "File Added Successfully",
     });
   } catch (error) {
-    console.error('Error in Add File:', error);
+    console.error("Error in Add File:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in Add File',
+      message: "Error in Add File",
       error: error.message,
     });
   }
@@ -90,15 +76,15 @@ export const issueFile = async (req, res) => {
   if (!fileIssueReason) {
     return res
       .status(400)
-      .json({ success: false, message: 'File Issue Reason is Required' });
+      .json({ success: false, message: "File Issue Reason is Required" });
   }
   if (!issueTo) {
     return res
       .status(400)
-      .json({ success: false, message: 'Issue to is Required' });
+      .json({ success: false, message: "Issue to is Required" });
   }
   if (!selectedCSA) {
-    return res.status(400).json({ success: false, message: 'CSA is Required' });
+    return res.status(400).json({ success: false, message: "CSA is Required" });
   }
 
   try {
@@ -108,14 +94,14 @@ export const issueFile = async (req, res) => {
     if (!file) {
       return res.status(404).json({
         success: false,
-        message: 'File not available in the warehouse.',
+        message: "File not available in the warehouse.",
       });
     }
     let check = file.toJSON();
     if (check.currentStatus == false) {
       return res.status(201).json({
         success: true,
-        message: 'File is Already Issued',
+        message: "File is Already Issued",
       });
     }
     file.issueReason = fileIssueReason;
@@ -127,13 +113,13 @@ export const issueFile = async (req, res) => {
 
     return res.status(201).json({
       success: true,
-      message: 'File Issued Successfully',
+      message: "File Issued Successfully",
     });
   } catch (error) {
-    console.error('Error in Issue file:', error);
+    console.error("Error in Issue file:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in Issue File',
+      message: "Error in Issue File",
       error: error.message,
     });
   }
@@ -146,25 +132,25 @@ export const returnFile = async (req, res) => {
   if (!boxNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Box Number is Required' });
+      .json({ success: false, message: "Box Number is Required" });
   }
   if (!shelfNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Shelf Number is Required' });
+      .json({ success: false, message: "Shelf Number is Required" });
   }
   if (!rackNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Rack Number is Required' });
+      .json({ success: false, message: "Rack Number is Required" });
   }
   if (!floorNumber) {
     return res
       .status(400)
-      .json({ success: false, message: 'Floor Number is Required' });
+      .json({ success: false, message: "Floor Number is Required" });
   }
   if (!selectedCSA) {
-    return res.status(400).json({ success: false, message: 'CSA is Required' });
+    return res.status(400).json({ success: false, message: "CSA is Required" });
   }
 
   try {
@@ -176,7 +162,7 @@ export const returnFile = async (req, res) => {
     if (check.currentStatus == true) {
       return res.status(201).json({
         success: true,
-        message: 'File is Already in Warehouse',
+        message: "File is Already in Warehouse",
       });
     }
 
@@ -191,13 +177,13 @@ export const returnFile = async (req, res) => {
 
     res.status(201).json({
       success: true,
-      message: 'File Issued Successfully',
+      message: "File Issued Successfully",
     });
   } catch (error) {
-    console.error('Error in Return file:', error);
+    console.error("Error in Return file:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in Return File',
+      message: "Error in Return File",
       error: error.message,
     });
   }
@@ -205,7 +191,7 @@ export const returnFile = async (req, res) => {
 
 export const getFilDataFromBarcode = async (req, res) => {
   const { selectedCSA } = req.body;
-  console.log(selectedCSA + '>>>>>>>>>>>>>>>>>>>>>');
+  console.log(selectedCSA + ">>>>>>>>>>>>>>>>>>>>>");
   try {
     let file = await Warehouse.findOne({
       where: {
@@ -217,19 +203,19 @@ export const getFilDataFromBarcode = async (req, res) => {
     if (!file) {
       return res.status(201).json({
         success: false,
-        message: 'File with this Barcode is not available',
+        message: "File with this Barcode is not available",
       });
     }
     res.status(201).json({
       success: true,
-      message: 'File Data',
+      message: "File Data",
       file,
     });
   } catch (error) {
-    console.error('Error in Add File:', error);
+    console.error("Error in Add File:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in Getting File Data',
+      message: "Error in Getting File Data",
       error: error.message,
     });
   }
@@ -269,14 +255,14 @@ export const getWarehousingRecord = async (req, res) => {
     // Respond with the collected data
     res.status(201).json({
       success: true,
-      message: 'File Data',
+      message: "File Data",
       result: warehouseRecord,
     });
   } catch (error) {
-    console.error('Error in Add File:', error);
+    console.error("Error in Add File:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in getting data',
+      message: "Error in getting data",
       error: error.message,
     });
   }
@@ -292,36 +278,36 @@ export const getBoxData = async (req, res) => {
       include: {
         model: FileData,
         attributes: [
-          'id',
-          'CSA',
-          'barcode',
-          'noOfPages',
-          'typeOfRequest',
-          'collectionPoint',
+          "id",
+          "CSA",
+          "barcode",
+          "noOfPages",
+          "typeOfRequest",
+          "collectionPoint",
         ],
       },
-      attributes: ['boxNumber', 'id'],
+      attributes: ["boxNumber", "id"],
     });
 
     // If no data found, return success as false
     if (data.length === 0) {
       return res.status(400).json({
         success: false,
-        message: 'No data found for the given box number.',
+        message: "No data found for the given box number.",
       });
     }
 
     // Respond with the collected data if found
     res.status(201).json({
       success: true,
-      message: 'File Data retrieved successfully',
+      message: "File Data retrieved successfully",
       result: data,
     });
   } catch (error) {
-    console.error('Error in Add File:', error);
+    console.error("Error in Add File:", error);
     res.status(500).json({
       success: false,
-      message: 'Error in getting data',
+      message: "Error in getting data",
       error: error.message,
     });
   }
@@ -332,7 +318,7 @@ export const updateBoxData = async (req, res) => {
     req.body;
 
   if (!newBoxNumber || !selfNumber || !rackNumber || !floorNumber || !boxIds) {
-    return res.status(400).send({ message: 'All fields are required.' });
+    return res.status(400).send({ message: "All fields are required." });
   }
   // console.log(newBoxNumber, selfNumber, rackNumber, floorNumber, boxIds )
   // return
@@ -367,19 +353,19 @@ export const updateBoxData = async (req, res) => {
     if (result[0] === 0) {
       return res
         .status(404)
-        .send({ success: false, message: 'No boxes found to update.' });
+        .send({ success: false, message: "No boxes found to update." });
     }
 
     return res.status(200).send({
       success: true,
-      message: 'Boxes updated successfully.',
+      message: "Boxes updated successfully.",
       updatedCount: result[0], // Number of rows updated
     });
   } catch (error) {
-    console.error('Error updating boxes:', error);
+    console.error("Error updating boxes:", error);
     return res
       .status(500)
-      .send({ success: false, message: 'Internal server error.' });
+      .send({ success: false, message: "Internal server error." });
   }
 };
 
@@ -387,7 +373,7 @@ export const updateSameBoxData = async (req, res) => {
   const { BoxNumber, boxIds } = req.body;
 
   if (!BoxNumber || !boxIds) {
-    return res.status(400).send({ message: 'All fields are required.' });
+    return res.status(400).send({ message: "All fields are required." });
   }
   // console.log(newBoxNumber, selfNumber, rackNumber, floorNumber, boxIds )
   // return
@@ -419,18 +405,18 @@ export const updateSameBoxData = async (req, res) => {
     if (result[0] === 0) {
       return res
         .status(404)
-        .send({ success: false, message: 'No boxes found to update.' });
+        .send({ success: false, message: "No boxes found to update." });
     }
 
     return res.status(200).send({
       success: true,
-      message: 'Boxes updated successfully.',
+      message: "Boxes updated successfully.",
       updatedCount: result[0], // Number of rows updated
     });
   } catch (error) {
-    console.error('Error updating boxes:', error);
+    console.error("Error updating boxes:", error);
     return res
       .status(500)
-      .send({ success: false, message: 'Internal server error.' });
+      .send({ success: false, message: "Internal server error." });
   }
 };
