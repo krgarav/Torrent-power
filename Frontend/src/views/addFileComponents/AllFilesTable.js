@@ -279,7 +279,7 @@ const AllFilesTable = ({
 
   // Time Format
 
-  const formatToIST = (dateString) => {
+  /*const formatToIST = (dateString) => {
     if (!dateString) return '-';
 
     return new Date(dateString).toLocaleString('en-IN', {
@@ -292,7 +292,7 @@ const AllFilesTable = ({
       second: '2-digit',
       hour12: true,
     });
-  };
+  }; */
 
   const LoadedTemplates = files1?.map((d, i) => (
     <tr
@@ -305,7 +305,7 @@ const AllFilesTable = ({
       <td>{d.typeOfRequest}</td>
 
       <td>{d.noOfPages}</td>
-      <td>{formatToIST(d.createdAt)}</td>
+      <td>{d.createdAt}</td>
 
       <td className='text-right'>
         <UncontrolledDropdown>
