@@ -82,6 +82,7 @@
     "sass": "1.69.5"
   },
   "devDependencies": {
+    "@babel/plugin-proposal-private-property-in-object": "^7.21.11",
     "gulp": "4.0.2",
     "gulp-append-prepend": "1.0.9"
   },

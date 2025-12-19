@@ -587,7 +587,11 @@ const AllFilesTable = ({
                     <input
                       type='number'
                       className='form-control'
-                      style={{ width: '80px' }}
+                      style={{
+                        width: '80px',
+                        marginRight: '5px',
+                        marginLeft: '5px',
+                      }}
                       placeholder='Page'
                       value={pageInput}
                       onChange={(e) => setPageInput(e.target.value)}
