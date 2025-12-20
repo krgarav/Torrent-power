@@ -553,7 +553,7 @@ const AllFilesTable = ({
                             <th scope='col'>typeOfRequest</th>
                             <th scope='col'>noOfPages</th>
                             <th scope='col'>createdAt</th>
-                            <th scope='col'>Actions Abhi547</th>
+                            <th scope='col'>Actions</th>
                           </tr>
                         </thead>
                         <tbody>{LoadedTemplates}</tbody>
