@@ -12,8 +12,8 @@
 // const url = 'http://localhost:5000/';
 // export const url2 = 'http://localhost:5000';
 
-const url = 'http://192.168.1.44:5000/';
-export const url2 = 'http://192.168.1.44:5000';
+const url = 'http://10.0.2.15:5000/';
+export const url2 = 'http://10.0.2.15:5000';
 
 export default url + 'createUser';
 export const UPDATE_USER = url + 'updateUser/';

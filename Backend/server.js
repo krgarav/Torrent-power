@@ -33,7 +33,7 @@ app.use(
     origin: [
       'http://localhost:3000',
       'http://10.144.6.12:3000',
-      'http://192.168.1.44:3000',
+      'http://10.0.2.15:3000',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
