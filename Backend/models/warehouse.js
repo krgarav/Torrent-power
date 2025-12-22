@@ -55,6 +55,14 @@ const Warehouse = sequelize.define('Warehouse', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-});
+},
+
+{
+    tableName: 'warehouses',
+    freezeTableName: true,
+    timestamps: true,
+  }
+
+);
 
 export default Warehouse;

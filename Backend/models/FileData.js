@@ -1,49 +1,48 @@
 import { DataTypes } from "sequelize";
 import sequelize from "../utils/db.js";
 
-const FileData = sequelize.define("FileData", {
+const FileData = sequelize.define(
+  "FileData",
+  {
     CSA: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: false
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     barcode: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
     },
     noOfPages: {
-        type: DataTypes.INTEGER,
-        allowNull: false,
+      type: DataTypes.INTEGER,
+      allowNull: false,
     },
     typeOfRequest: {
-        type: DataTypes.STRING,
-        allowNull: false
+      type: DataTypes.STRING,
+      allowNull: false,
     },
     collectionPoint: {
-        type: DataTypes.STRING,
-        allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     dateOfApplication: {
-        type: DataTypes.DATE,
-        allowNull: false
+      type: DataTypes.DATE,
+      allowNull: false,
     },
     createdBy: {
-        type: DataTypes.STRING,
-        allowNull: true,
-    },
-    createdAt: {
-        type: DataTypes.DATE,
-        allowNull: true
+      type: DataTypes.STRING,
+      allowNull: true,
     },
     updatedBy: {
-        type: DataTypes.STRING,
-        allowNull: true,
+      type: DataTypes.STRING,
+      allowNull: true,
     },
-    updatedAt: {
-        type: DataTypes.DATE,
-        allowNull: true
-    }
-});
+  },
+  {
+    tableName: "filedata",
+    freezeTableName: true,
+    timestamps: true, // ✅ creates & manages createdAt, updatedAt
+  }
+);
 
 export default FileData;

@@ -25,6 +25,15 @@ const User = sequelize.define("User", {
         type: DataTypes.JSON,
         allowNull: false,
     },
-});
+},
+
+{
+    tableName: 'users',
+    freezeTableName: true,
+    timestamps: false,
+  }
+
+
+);
 
 export default User;

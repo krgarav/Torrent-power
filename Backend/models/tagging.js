@@ -11,6 +11,16 @@ const Tagging = sequelize.define("Tagging", {
         allowNull: false,
     },
 
-});
+},
+
+
+{
+    tableName: 'taggings',
+    freezeTableName: true,
+    timestamps: false,
+  }
+
+
+);
 
 export default Tagging;

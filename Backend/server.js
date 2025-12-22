@@ -74,8 +74,9 @@ const PORT = 5000;
 
 // sequelize.sync({ alter: true }).then(async () => {
 sequelize
-  .sync({ force: false })
+  .authenticate()
   .then(async () => {
+    console.log("DB connection established successfully");
     // Check if the admin user table exists, if not, create it
     const adminUser = await User.findOne({
       where: { email: 'admin@gmail.com' },
