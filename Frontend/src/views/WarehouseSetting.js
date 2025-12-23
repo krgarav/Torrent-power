@@ -158,19 +158,19 @@ const WarehouseSetting = () => {
       <NormalHeader />
 
       <Container
-        className='mt--7'
+        className="mt--7"
         fluid
       >
         {loader && <Loader />}
 
         <Row>
-          <div className='col'>
-            <Card className='shadow'>
-              <CardHeader className='border-0'>
-                <div className='d-flex justify-content-between'>
-                  <h3 className='mt-2'>Warehouse Setting</h3>
+          <div className="col">
+            <Card className="shadow">
+              <CardHeader className="border-0">
+                <div className="d-flex justify-content-between">
+                  <h3 className="mt-2">Warehouse Setting</h3>
                   <Button
-                    color='primary'
+                    color="primary"
                     onClick={() => setCreateModalShow(true)}
                   >
                     Create Warehouse
@@ -179,10 +179,10 @@ const WarehouseSetting = () => {
               </CardHeader>
 
               <Table
-                className='align-items-center table-flush mb-5'
+                className="align-items-center table-flush mb-5"
                 responsive
               >
-                <thead className='thead-light'>
+                <thead className="thead-light">
                   <tr>
                     <th>S.No</th>
                     <th>Warehouse Name</th>
@@ -196,8 +196,8 @@ const WarehouseSetting = () => {
                   {warehouses.length === 0 ? (
                     <tr>
                       <td
-                        colSpan='5'
-                        className='text-center'
+                        colSpan="5"
+                        className="text-center"
                       >
                         No warehouses found
                       </td>
@@ -209,14 +209,15 @@ const WarehouseSetting = () => {
                         <td>{w.name}</td>
                         <td>{w.totalFloor}</td>
                         <td>{w.createdAt}</td>
-                        <td className='text-right'>
+                        {/*
+                        <td className="text-right">
                           <UncontrolledDropdown>
                             <DropdownToggle
-                              className='btn-icon-only text-light'
-                              size='sm'
-                              color=''
+                              className="btn-icon-only text-light"
+                              size="sm"
+                              color=""
                             >
-                              <i className='fas fa-ellipsis-v' />
+                              <i className="fas fa-ellipsis-v" />
                             </DropdownToggle>
                             <DropdownMenu right>
                               <DropdownItem onClick={() => handleRowClick(w)}>
@@ -228,6 +229,7 @@ const WarehouseSetting = () => {
                             </DropdownMenu>
                           </UncontrolledDropdown>
                         </td>
+                        */}
                       </tr>
                     ))
                   )}
@@ -241,18 +243,18 @@ const WarehouseSetting = () => {
       {/* ================= CREATE MODAL ================= */}
       <Modal
         show={createModalShow}
-        size='lg'
+        size="lg"
         centered
       >
         <Modal.Header>
           <Modal.Title>Create Warehouse</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className='mb-3'>
-            <label className='col-md-3 col-form-label'>Warehouse Name</label>
-            <div className='col-md-9'>
+          <Row className="mb-3">
+            <label className="col-md-3 col-form-label">Warehouse Name</label>
+            <div className="col-md-9">
               <input
-                className='form-control'
+                className="form-control"
                 value={warehouseName}
                 onChange={(e) => setWarehouseName(e.target.value)}
               />
@@ -265,11 +267,11 @@ const WarehouseSetting = () => {
           </Row>
 
           <Row>
-            <label className='col-md-3 col-form-label'>Total Floors</label>
-            <div className='col-md-9'>
+            <label className="col-md-3 col-form-label">Total Floors</label>
+            <div className="col-md-9">
               <input
-                type='number'
-                className='form-control'
+                type="number"
+                className="form-control"
                 value={totalFloor}
                 onChange={(e) => setTotalFloor(e.target.value)}
               />
@@ -283,13 +285,13 @@ const WarehouseSetting = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            color='primary'
+            color="primary"
             onClick={() => setCreateModalShow(false)}
           >
             Close
           </Button>
           <Button
-            color='success'
+            color="success"
             onClick={handleCreate}
           >
             Create
@@ -300,18 +302,18 @@ const WarehouseSetting = () => {
       {/* ================= EDIT MODAL ================= */}
       <Modal
         show={editModalShow}
-        size='lg'
+        size="lg"
         centered
       >
         <Modal.Header>
           <Modal.Title>Edit Warehouse</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className='mb-3'>
-            <label className='col-md-3 col-form-label'>Warehouse Name</label>
-            <div className='col-md-9'>
+          <Row className="mb-3">
+            <label className="col-md-3 col-form-label">Warehouse Name</label>
+            <div className="col-md-9">
               <input
-                className='form-control'
+                className="form-control"
                 value={warehouseName}
                 onChange={(e) => setWarehouseName(e.target.value)}
               />
@@ -319,11 +321,11 @@ const WarehouseSetting = () => {
           </Row>
 
           <Row>
-            <label className='col-md-3 col-form-label'>Total Floors</label>
-            <div className='col-md-9'>
+            <label className="col-md-3 col-form-label">Total Floors</label>
+            <div className="col-md-9">
               <input
-                type='number'
-                className='form-control'
+                type="number"
+                className="form-control"
                 value={totalFloor}
                 onChange={(e) => setTotalFloor(e.target.value)}
               />
@@ -332,13 +334,13 @@ const WarehouseSetting = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            color='primary'
+            color="primary"
             onClick={() => setEditModalShow(false)}
           >
             Close
           </Button>
           <Button
-            color='success'
+            color="success"
             onClick={handleUpdate}
           >
             Update
