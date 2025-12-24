@@ -6,7 +6,7 @@ export const createWarehouse = async (req, res) => {
     const { warehouseName, totalFloors } = req.body;
 
     // Since you are NOT using auth / token
-    const createdBy = 'system';
+    const createdBy = 'admin';
 
     if (!warehouseName || !totalFloors) {
       return res.status(400).json({
@@ -80,7 +80,7 @@ export const updateWarehouse = async (req, res) => {
     await warehouse.update({
       warehouse_name: warehouseName,
       total_floors: totalFloors,
-      updated_by: 'system',
+      updated_by: 'admin',
     });
 
     return res.json({

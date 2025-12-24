@@ -1,139 +1,139 @@
-import Header from "components/Headers/Header.js";
-import NormalHeader from "components/Headers/NormalHeader";
-import { Modal } from "react-bootstrap";
-import React, { useEffect, useRef, useState } from "react";
-import { Button, Card, CardHeader, Container, Row, Col } from "reactstrap";
-import axios from "axios";
-import { post } from "helper/api_helper";
-import { genrateBarcode } from "helper/barcode_helper";
-import jsPDF from "jspdf";
-import { getAllBarcodes } from "helper/barcode_helper";
-import { toast } from "react-toastify";
-import Select from "react-select";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCheck } from "@fortawesome/free-solid-svg-icons";
+import Header from 'components/Headers/Header.js';
+import NormalHeader from 'components/Headers/NormalHeader';
+import { Modal } from 'react-bootstrap';
+import React, { useEffect, useRef, useState } from 'react';
+import { Button, Card, CardHeader, Container, Row, Col } from 'reactstrap';
+import axios from 'axios';
+import { post } from 'helper/api_helper';
+import { genrateBarcode } from 'helper/barcode_helper';
+import jsPDF from 'jspdf';
+import { getAllBarcodes } from 'helper/barcode_helper';
+import { toast } from 'react-toastify';
+import Select from 'react-select';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCheck } from '@fortawesome/free-solid-svg-icons';
 
-import Loader from "components/Loader/Loader";
-import { createPdfFromImages } from "helper/tagging_helper";
-import { getAllFilesData } from "helper/fileData_helper";
-import { DOWNLOAD_ZIP_FILE } from "helper/url_helper";
-import { EXTRACT_PDF } from "helper/url_helper";
-import { url2 } from "helper/url_helper";
-import { createPdfFromImagesReplace } from "helper/tagging_helper";
-import { getFileFromBarcode } from "helper/fileData_helper";
-import { getFileFromCSA } from "helper/fileData_helper";
+import Loader from 'components/Loader/Loader';
+import { createPdfFromImages } from 'helper/tagging_helper';
+import { getAllFilesData } from 'helper/fileData_helper';
+import { DOWNLOAD_ZIP_FILE } from 'helper/url_helper';
+import { EXTRACT_PDF } from 'helper/url_helper';
+import { url2 } from 'helper/url_helper';
+import { createPdfFromImagesReplace } from 'helper/tagging_helper';
+import { getFileFromBarcode } from 'helper/fileData_helper';
+import { getFileFromCSA } from 'helper/fileData_helper';
 
 const Tagging = () => {
-  const [CSANumber, setCSANumber] = useState("");
-  const [selectedCSA, setSelectedCSA] = useState("");
-  const [spanDisplay, setSpanDisplay] = useState("none");
-  const [file, setFile] = useState("");
+  const [CSANumber, setCSANumber] = useState('');
+  const [selectedCSA, setSelectedCSA] = useState('');
+  const [spanDisplay, setSpanDisplay] = useState('none');
+  const [file, setFile] = useState('');
   const [fileUrl, setFileUrl] = useState(null);
   const [fileData, setfileData] = useState([]);
   const [CSAData, setCSAData] = useState([]);
   const [pageCheck, setPageCheck] = useState(true);
-  const [totalPages, setTotalPages] = useState("");
+  const [totalPages, setTotalPages] = useState('');
   const [pagesDataCount, setPagesDataCount] = useState([]);
-  const [pageCount, setPageCount] = useState("");
+  const [pageCount, setPageCount] = useState('');
   const [errors, setErrors] = useState({});
   const [documentType, SetDocumentType] = useState({});
   const [loader, setLoader] = useState(false);
   const [images, setImages] = useState([]);
   const [selectedImages, setSelectedImages] = useState([]);
-  const [selectedBarcode, setSelectedBarcode] = useState("");
+  const [selectedBarcode, setSelectedBarcode] = useState('');
   const [modalShow, setModalShow] = useState(false);
-  const [date, setDate] = useState("");
+  const [date, setDate] = useState('');
   const [confirmModal, setConfirmModal] = useState(false);
 
   const fileInputRef = useRef(null);
 
   const documentsData = [
-    { id: 1, name: "RF (New Requisition Form)" },
-    { id: 2, name: "RFNC (RF Name Change)" },
-    { id: 3, name: "SR (Solar Requisition)" },
-    { id: 4, name: "PDCRF (Service Removal RF)" },
-    { id: 5, name: "TR (Test Report)" },
-    { id: 6, name: "PB (Personal Bond)" },
-    { id: 7, name: "CHKLT (Checklist)" },
-    { id: 8, name: "SACH (Safety Challan)" },
-    { id: 9, name: "DESNOC (DES NOC)" },
-    { id: 10, name: "DICNOC (DIC NOC)" },
-    { id: 11, name: "FIRENOC (FIRE NOC)" },
-    { id: 12, name: "FIRC (Police FIR)" },
-    { id: 13, name: "RENTA (Rent Receipt & Rent Agreement)" },
-    { id: 14, name: "ATS (Agreement to Sale)" },
-    { id: 15, name: "ANNASS (Agra Nagar Nigam Assessment)" },
-    { id: 16, name: "IB (Indemnity Bond-New Connection)" },
-    { id: 17, name: "IBNC (Indemnity Bond-Name Change)" },
-    { id: 18, name: "ELEC (Election Card/Voter Card)" },
-    { id: 19, name: "RATCD (Ration Card)" },
-    { id: 20, name: "PANP (Pan Card)" },
-    { id: 21, name: "PANCO (Pan card - Company)" },
-    { id: 22, name: "ADHAR (ADHAR CARD)" },
-    { id: 23, name: "PHID (PHOTO ID BY ANY GOVT AGENCY)" },
-    { id: 24, name: "PASS (PASSPORT)" },
-    { id: 25, name: "POA (Power off Attorney)" },
-    { id: 26, name: "DRLEC (DRIVING LICENCE)" },
-    { id: 27, name: "SBA (Statement of Bank Account)" },
-    { id: 28, name: "STN (Sales Tax Number)" },
-    { id: 29, name: "GSTD (GST Declaration)" },
-    { id: 30, name: "GSTIN (GST Identification No.)" },
-    { id: 31, name: "DTHCR (Death Certificate)" },
-    { id: 32, name: "SUCCDE (SUCCESSION DEED)" },
-    { id: 33, name: "LEGLHIE (Legal Hiership)" },
-    { id: 34, name: "BORES (Board Resolution)" },
-    { id: 35, name: "ROC (Certificate from Reg of companies)" },
-    { id: 36, name: "MACERT (MARRIAGE CERTIFICATE)" },
-    { id: 37, name: "LEASE (Lease Deed)" },
-    { id: 38, name: "PARTD (Partnership deed)" },
-    { id: 39, name: "SLDD (Sale Deed)" },
-    { id: 40, name: "GFTDD (Gift Deed)" },
-    { id: 41, name: "COMPLH (Company Letter Head)" },
-    { id: 42, name: "CORRDD (Correction Deed)" },
-    { id: 43, name: "TRUST (Trust Deed)" },
-    { id: 44, name: "PANLT (Panchayat Letter)" },
-    { id: 45, name: "POSLT (Possession Letter)" },
-    { id: 46, name: "RTGS (RTGS Form)" },
-    { id: 47, name: "BANK (BANK DETAILS)" },
-    { id: 48, name: "SDREF (SECURITY Refund Form)" },
-    { id: 49, name: "MOA (Memo. Of Assoc.)" },
-    { id: 50, name: "AOA (Article of Assoc)" },
-    { id: 51, name: "COI (Certificate of Incorporation)" },
-    { id: 52, name: "OTH (Others)" },
-    { id: 53, name: "NOCLL (NOC OF LANDLORD)" },
-    { id: 54, name: "NOCCO (NOC OF CO-OWNER)" },
-    { id: 55, name: "PLAN (Plan of Premises)" },
-    { id: 56, name: "LPLAN (Layout plan)" },
-    { id: 57, name: "BANKPA (BANK PASSBOOK)" },
-    { id: 58, name: "CANCH (CANCELLED CHEQUE)" },
-    { id: 59, name: "AFFID (AFFIDAVIT)" },
-    { id: 60, name: "KHATA (KHATAUNI)" },
-    { id: 61, name: "ALLTLT (ALLOTMENT LETTER)" },
-    { id: 62, name: "ADADEC (ADA MAP DECLARATION)" },
+    { id: 1, name: 'RF (New Requisition Form)' },
+    { id: 2, name: 'RFNC (RF Name Change)' },
+    { id: 3, name: 'SR (Solar Requisition)' },
+    { id: 4, name: 'PDCRF (Service Removal RF)' },
+    { id: 5, name: 'TR (Test Report)' },
+    { id: 6, name: 'PB (Personal Bond)' },
+    { id: 7, name: 'CHKLT (Checklist)' },
+    { id: 8, name: 'SACH (Safety Challan)' },
+    { id: 9, name: 'DESNOC (DES NOC)' },
+    { id: 10, name: 'DICNOC (DIC NOC)' },
+    { id: 11, name: 'FIRENOC (FIRE NOC)' },
+    { id: 12, name: 'FIRC (Police FIR)' },
+    { id: 13, name: 'RENTA (Rent Receipt & Rent Agreement)' },
+    { id: 14, name: 'ATS (Agreement to Sale)' },
+    { id: 15, name: 'ANNASS (Agra Nagar Nigam Assessment)' },
+    { id: 16, name: 'IB (Indemnity Bond-New Connection)' },
+    { id: 17, name: 'IBNC (Indemnity Bond-Name Change)' },
+    { id: 18, name: 'ELEC (Election Card/Voter Card)' },
+    { id: 19, name: 'RATCD (Ration Card)' },
+    { id: 20, name: 'PANP (Pan Card)' },
+    { id: 21, name: 'PANCO (Pan card - Company)' },
+    { id: 22, name: 'ADHAR (ADHAR CARD)' },
+    { id: 23, name: 'PHID (PHOTO ID BY ANY GOVT AGENCY)' },
+    { id: 24, name: 'PASS (PASSPORT)' },
+    { id: 25, name: 'POA (Power off Attorney)' },
+    { id: 26, name: 'DRLEC (DRIVING LICENCE)' },
+    { id: 27, name: 'SBA (Statement of Bank Account)' },
+    { id: 28, name: 'STN (Sales Tax Number)' },
+    { id: 29, name: 'GSTD (GST Declaration)' },
+    { id: 30, name: 'GSTIN (GST Identification No.)' },
+    { id: 31, name: 'DTHCR (Death Certificate)' },
+    { id: 32, name: 'SUCCDE (SUCCESSION DEED)' },
+    { id: 33, name: 'LEGLHIE (Legal Hiership)' },
+    { id: 34, name: 'BORES (Board Resolution)' },
+    { id: 35, name: 'ROC (Certificate from Reg of companies)' },
+    { id: 36, name: 'MACERT (MARRIAGE CERTIFICATE)' },
+    { id: 37, name: 'LEASE (Lease Deed)' },
+    { id: 38, name: 'PARTD (Partnership deed)' },
+    { id: 39, name: 'SLDD (Sale Deed)' },
+    { id: 40, name: 'GFTDD (Gift Deed)' },
+    { id: 41, name: 'COMPLH (Company Letter Head)' },
+    { id: 42, name: 'CORRDD (Correction Deed)' },
+    { id: 43, name: 'TRUST (Trust Deed)' },
+    { id: 44, name: 'PANLT (Panchayat Letter)' },
+    { id: 45, name: 'POSLT (Possession Letter)' },
+    { id: 46, name: 'RTGS (RTGS Form)' },
+    { id: 47, name: 'BANK (BANK DETAILS)' },
+    { id: 48, name: 'SDREF (SECURITY Refund Form)' },
+    { id: 49, name: 'MOA (Memo. Of Assoc.)' },
+    { id: 50, name: 'AOA (Article of Assoc)' },
+    { id: 51, name: 'COI (Certificate of Incorporation)' },
+    { id: 52, name: 'OTH (Others)' },
+    { id: 53, name: 'NOCLL (NOC OF LANDLORD)' },
+    { id: 54, name: 'NOCCO (NOC OF CO-OWNER)' },
+    { id: 55, name: 'PLAN (Plan of Premises)' },
+    { id: 56, name: 'LPLAN (Layout plan)' },
+    { id: 57, name: 'BANKPA (BANK PASSBOOK)' },
+    { id: 58, name: 'CANCH (CANCELLED CHEQUE)' },
+    { id: 59, name: 'AFFID (AFFIDAVIT)' },
+    { id: 60, name: 'KHATA (KHATAUNI)' },
+    { id: 61, name: 'ALLTLT (ALLOTMENT LETTER)' },
+    { id: 62, name: 'ADADEC (ADA MAP DECLARATION)' },
     {
       id: 63,
-      name: "NILDUE (Nill Dues AFFIDAVIT on 10rs Stamp Paper For Temporary Connection)",
+      name: 'NILDUE (Nill Dues AFFIDAVIT on 10rs Stamp Paper For Temporary Connection)',
     },
-    { id: 64, name: "DOMC (DOMICILE CERTIFICATE)" },
-    { id: 65, name: "TAXR (House Tax Receipt)" },
-    { id: 66, name: "WILL (WILL)" },
-    { id: 67, name: "PCBNOC (Pollution Control Board NOC)" },
-    { id: 68, name: "HEAVLOAAGR (Agreement of Supply (Heavy Load Agreement))" },
-    { id: 69, name: "SOCREG (Society Registration)" },
-    { id: 70, name: "SCHREG (SCHOOL REGISTRATION)" },
-    { id: 71, name: "BDONO (Block Development Office NOC for LMV-5)" },
-    { id: 72, name: "NAGRPAN (NAGAR PANCHAYAT LETTER)" },
-    { id: 73, name: "UPNEDAREG (UPNEDA REGISTRATION FOR solar)" },
-    { id: 74, name: "CRTORD (Court Order)" },
-    { id: 75, name: "LEGDOC (Legal Document)" },
-    { id: 76, name: "SEEN (SEEN ON)" },
-    { id: 77, name: "CAN (CANCELLATION)" },
-    { id: 78, name: "LLC (LLC)" },
-    { id: 79, name: "COMF (COMPLAINT FORM)" },
-    { id: 80, name: "YORL (YORL)" },
-    { id: 81, name: "OTS (OTS SCHEME)" },
-    { id: 82, name: "NAMCORR (NAME CORRECTION SLIP)" },
-    { id: 83, name: "PARSHDLETT (PARSHAD LETTER HEAD)" },
+    { id: 64, name: 'DOMC (DOMICILE CERTIFICATE)' },
+    { id: 65, name: 'TAXR (House Tax Receipt)' },
+    { id: 66, name: 'WILL (WILL)' },
+    { id: 67, name: 'PCBNOC (Pollution Control Board NOC)' },
+    { id: 68, name: 'HEAVLOAAGR (Agreement of Supply (Heavy Load Agreement))' },
+    { id: 69, name: 'SOCREG (Society Registration)' },
+    { id: 70, name: 'SCHREG (SCHOOL REGISTRATION)' },
+    { id: 71, name: 'BDONO (Block Development Office NOC for LMV-5)' },
+    { id: 72, name: 'NAGRPAN (NAGAR PANCHAYAT LETTER)' },
+    { id: 73, name: 'UPNEDAREG (UPNEDA REGISTRATION FOR solar)' },
+    { id: 74, name: 'CRTORD (Court Order)' },
+    { id: 75, name: 'LEGDOC (Legal Document)' },
+    { id: 76, name: 'SEEN (SEEN ON)' },
+    { id: 77, name: 'CAN (CANCELLATION)' },
+    { id: 78, name: 'LLC (LLC)' },
+    { id: 79, name: 'COMF (COMPLAINT FORM)' },
+    { id: 80, name: 'YORL (YORL)' },
+    { id: 81, name: 'OTS (OTS SCHEME)' },
+    { id: 82, name: 'NAMCORR (NAME CORRECTION SLIP)' },
+    { id: 83, name: 'PARSHDLETT (PARSHAD LETTER HEAD)' },
   ];
 
   const handleSelectCSA = (selectedOption) => {
@@ -151,7 +151,7 @@ const Tagging = () => {
   };
 
   const handleBarcodeChange = (selectedOption) => {
-    console.log(selectedOption)
+    console.log(selectedOption);
     setSelectedBarcode(selectedOption);
     setSelectedCSA(selectedOption);
   };
@@ -159,7 +159,7 @@ const Tagging = () => {
   const addPageData = () => {
     setPagesDataCount([
       ...pagesDataCount,
-      { from: "", to: "", documentType: null },
+      { from: '', to: '', documentType: null },
     ]); // Adding an empty object as a placeholder
   };
 
@@ -176,12 +176,12 @@ const Tagging = () => {
       if (data.from <= 0) {
         newErrors[index] = {
           ...newErrors[index],
-          from: "From must be greater than 0",
+          from: 'From must be greater than 0',
         };
       } else if (index > 0 && data.from <= pagesDataCount[index - 1].to) {
         newErrors[index] = {
           ...newErrors[index],
-          from: "From must be greater than previous To",
+          from: 'From must be greater than previous To',
         };
       } else if (data.from > pageCount) {
         newErrors[index] = {
@@ -193,12 +193,12 @@ const Tagging = () => {
       if (data.to <= 0) {
         newErrors[index] = {
           ...newErrors[index],
-          to: "To must be greater than 0",
+          to: 'To must be greater than 0',
         };
       } else if (data.to <= data.from) {
         newErrors[index] = {
           ...newErrors[index],
-          to: "To must be greater than From",
+          to: 'To must be greater than From',
         };
       } else if (
         index < pagesDataCount.length - 1 &&
@@ -206,7 +206,7 @@ const Tagging = () => {
       ) {
         newErrors[index] = {
           ...newErrors[index],
-          to: "To must be less than next From",
+          to: 'To must be less than next From',
         };
       } else if (data.to > pageCount) {
         newErrors[index] = {
@@ -218,7 +218,7 @@ const Tagging = () => {
       if (!data.documentType) {
         newErrors[index] = {
           ...newErrors[index],
-          documentType: "This field is required",
+          documentType: 'This field is required',
         };
       }
     });
@@ -248,7 +248,7 @@ const Tagging = () => {
         toast.success(data?.message);
         SetDocumentType(null);
         removeSelectedImages();
-      } else if (data?.message == "File Already exists of this document") {
+      } else if (data?.message == 'File Already exists of this document') {
         setConfirmModal(true);
       } else {
         toast.error(data?.message);
@@ -294,8 +294,8 @@ const Tagging = () => {
   };
 
   const [selectedFile, setSelectedFile] = useState(null);
-  const [barcode, setBarcode] = useState("");
-  const [error, setError] = useState("");
+  const [barcode, setBarcode] = useState('');
+  const [error, setError] = useState('');
 
   // useEffect(()=>{
   //     if(selectedBarcode.length!==0){
@@ -314,7 +314,7 @@ const Tagging = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
 
@@ -328,7 +328,7 @@ const Tagging = () => {
       }
     } catch (error) {
       console.log(error);
-      toast.error(error?.response?.data?.message || "Something went wrong");
+      toast.error(error?.response?.data?.message || 'Something went wrong');
     }
   };
 
@@ -349,25 +349,25 @@ const Tagging = () => {
   };
 
   const handleFileChange = async (e) => {
-    setSelectedBarcode("");
-    setSelectedCSA("");
+    setSelectedBarcode('');
+    setSelectedCSA('');
     const selectedFile = e.target.files[0];
 
     setFile(selectedFile);
     let name = e.target.files[0]?.name;
     if (name) {
-      let newFilename = name.replace(".pdf", "");
+      let newFilename = name.replace('.pdf', '');
       handleBaroceSetOnPdfChange(newFilename);
     }
 
     const formData = new FormData();
-    formData.append("pdf", e.target.files[0]);
+    formData.append('pdf', e.target.files[0]);
 
     try {
       setLoader(true);
       const response = await axios.post(EXTRACT_PDF, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
+          'Content-Type': 'multipart/form-data',
         },
       });
       setLoader(false);
@@ -375,7 +375,7 @@ const Tagging = () => {
       setImages(response.data.images);
     } catch (error) {
       setLoader(false);
-      setError("An error occurred while reading the barcode.");
+      setError('An error occurred while reading the barcode.');
     }
   };
 
@@ -390,7 +390,7 @@ const Tagging = () => {
   const handleDownloadDataFile = async () => {
     try {
       if (!date) {
-        setError("Date is required");
+        setError('Date is required');
         return;
       }
 
@@ -398,20 +398,20 @@ const Tagging = () => {
       const response = await axios.post(
         DOWNLOAD_ZIP_FILE, // Replace with your API URL
         { date },
-        { responseType: "blob" } // Set response type to 'blob' for binary data
+        { responseType: 'blob' } // Set response type to 'blob' for binary data
       );
 
       // Create a link element and trigger download
       const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
+      const link = document.createElement('a');
       link.href = url;
-      link.setAttribute("download", `${date}.zip`); // Set the filename
+      link.setAttribute('download', `${date}.zip`); // Set the filename
       document.body.appendChild(link);
       link.click();
       link.remove();
       window.URL.revokeObjectURL(url);
     } catch (err) {
-      toast.error("Failed to download folder");
+      toast.error('Failed to download folder');
       console.error(err);
     } finally {
       setLoader(false);
@@ -431,8 +431,11 @@ const Tagging = () => {
   return (
     <>
       <NormalHeader />
-      <Container className="mt--7" fluid>
-        {loader ? <Loader /> : ""}
+      <Container
+        className="mt--7"
+        fluid
+      >
+        {loader ? <Loader /> : ''}
         <Row>
           <div className="col">
             <Card className="shadow">
@@ -464,7 +467,7 @@ const Tagging = () => {
                       onChange={handleFileChange}
                     />
                     {!file && (
-                      <span style={{ color: "red", display: spanDisplay }}>
+                      <span style={{ color: 'red', display: spanDisplay }}>
                         This feild is required
                       </span>
                     )}
@@ -490,7 +493,7 @@ const Tagging = () => {
                       placeholder="Enter barcode to search"
                     />
                     {!selectedBarcode && (
-                      <span style={{ color: "red", display: spanDisplay }}>
+                      <span style={{ color: 'red', display: spanDisplay }}>
                         This feild is required
                       </span>
                     )}
@@ -516,7 +519,7 @@ const Tagging = () => {
                       placeholder="Search barcode to get CSA"
                     />
                     {!selectedCSA && (
-                      <span style={{ color: "red", display: spanDisplay }}>
+                      <span style={{ color: 'red', display: spanDisplay }}>
                         This feild is required
                       </span>
                     )}
@@ -527,19 +530,19 @@ const Tagging = () => {
                   <div className="col-md-7">
                     <div>
                       {images?.length > 0 && (
-                        <div style={{ overflowY: "scroll", height: "40rem" }}>
+                        <div style={{ overflowY: 'scroll', height: '40rem' }}>
                           {images.map((image, index) => (
                             <div
                               key={index}
                               style={{
-                                position: "relative",
-                                display: "inline-block",
-                                margin: "10px 5px",
+                                position: 'relative',
+                                display: 'inline-block',
+                                margin: '10px 5px',
                                 ...(zoomedImage === image && {
-                                  position: "fixed",
-                                  top: "50%",
-                                  left: "50%",
-                                  transform: "translate(-50%, -50%)",
+                                  position: 'fixed',
+                                  top: '50%',
+                                  left: '50%',
+                                  transform: 'translate(-50%, -50%)',
                                   zIndex: 1000,
                                 }),
                               }}
@@ -548,11 +551,11 @@ const Tagging = () => {
                                 <FontAwesomeIcon
                                   icon={faCheck}
                                   style={{
-                                    position: "absolute",
-                                    top: "5px",
-                                    left: "5px",
-                                    color: "green",
-                                    fontSize: "20px",
+                                    position: 'absolute',
+                                    top: '5px',
+                                    left: '5px',
+                                    color: 'green',
+                                    fontSize: '20px',
                                     zIndex: 1,
                                   }}
                                 />
@@ -564,16 +567,16 @@ const Tagging = () => {
                                 onDoubleClick={() => handleDoubleClick(image)}
                                 style={{
                                   width:
-                                    zoomedImage === image ? "80%" : "200px",
+                                    zoomedImage === image ? '80%' : '200px',
                                   maxWidth:
-                                    zoomedImage === image ? "none" : "600px",
-                                  border: "2px solid black",
-                                  cursor: "pointer",
+                                    zoomedImage === image ? 'none' : '600px',
+                                  border: '2px solid black',
+                                  cursor: 'pointer',
                                   ...(zoomedImage === image && {
-                                    width: "auto",
-                                    height: "85vh",
-                                    maxWidth: "90%",
-                                    maxHeight: "85vh",
+                                    width: 'auto',
+                                    height: '85vh',
+                                    maxWidth: '90%',
+                                    maxHeight: '85vh',
                                   }),
                                 }}
                               />
@@ -613,7 +616,7 @@ const Tagging = () => {
                         <div className="functions mt-2 d-flex justify-content-end">
                           <Button
                             className=""
-                            color={pageCheck ? "success" : "light"}
+                            color={pageCheck ? 'success' : 'light'}
                             onClick={() => handleSave(1)}
                             type="button"
                             disabled={!pageCheck}
@@ -658,7 +661,7 @@ const Tagging = () => {
                 onChange={(e) => setDate(e.target.value)}
               />
               {!date && (
-                <span style={{ color: "red", display: spanDisplay }}>
+                <span style={{ color: 'red', display: spanDisplay }}>
                   This feild is required
                 </span>
               )}
@@ -673,7 +676,7 @@ const Tagging = () => {
             className="waves-effect waves-light"
           >
             Close
-          </Button>{" "}
+          </Button>{' '}
           <Button
             type="button"
             color="success"
@@ -681,7 +684,7 @@ const Tagging = () => {
             className="waves-effect waves-light"
           >
             Download
-          </Button>{" "}
+          </Button>{' '}
         </Modal.Footer>
       </Modal>
 
@@ -705,7 +708,7 @@ const Tagging = () => {
             className="waves-effect waves-light"
           >
             Cancel
-          </Button>{" "}
+          </Button>{' '}
           <Button
             type="button"
             color="info"
@@ -713,7 +716,7 @@ const Tagging = () => {
             className="waves-effect waves-light"
           >
             Replace
-          </Button>{" "}
+          </Button>{' '}
           <Button
             type="button"
             color="success"
@@ -721,7 +724,7 @@ const Tagging = () => {
             className="waves-effect waves-light"
           >
             Append
-          </Button>{" "}
+          </Button>{' '}
         </Modal.Footer>
       </Modal>
     </>
