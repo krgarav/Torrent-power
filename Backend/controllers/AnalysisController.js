@@ -1,11 +1,12 @@
-import FileData from "../models/FileData.js";
-import Tagging from "../models/tagging.js";
-import Warehouse from "../models/warehouse.js";
-import { Op, where } from "sequelize";
-import xlsx from "xlsx";
-import path from "path";
-import fs from "fs";
-import { fileURLToPath } from "url";
+import fs from 'fs';
+import fsPromises from 'fs/promises';
+import path from 'path';
+import xlsx from 'xlsx';
+import FileData from '../models/FileData.js';
+import Tagging from '../models/tagging.js';
+import Warehouse from '../models/warehouse.js';
+import { Op, where } from 'sequelize';
+import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -42,14 +43,14 @@ export const getAnalysisData = async (req, res) => {
     // Send the response with the counts
     res.status(200).json({
       success: true,
-      message: "Analysis data",
+      message: 'Analysis data',
       data: { fileDataCount, warehouseCount, taggingCount },
     });
   } catch (error) {
     console.log(error);
     res
       .status(500)
-      .json({ success: false, message: "Error in get analysis data", error });
+      .json({ success: false, message: 'Error in get analysis data', error });
   }
 };
 
@@ -145,7 +146,7 @@ export const getTodayAnalysisData = async (req, res) => {
     // Send the response
     res.status(200).json({
       success: true,
-      message: "Analysis data for today",
+      message: 'Analysis data for today',
       data: {
         fileDataCount,
         warehouseCount,
@@ -156,7 +157,7 @@ export const getTodayAnalysisData = async (req, res) => {
     console.log(error);
     res.status(500).json({
       success: false,
-      message: "Error in fetching analysis data",
+      message: 'Error in fetching analysis data',
       error,
     });
   }
@@ -173,7 +174,7 @@ export const downloadDataCsv = async (req, res) => {
     if (isNaN(fromDate) || isNaN(toDate)) {
       return res.status(400).json({
         success: false,
-        message: "Invalid date range provided",
+        message: 'Invalid date range provided',
       });
     }
 
@@ -197,7 +198,7 @@ export const downloadDataCsv = async (req, res) => {
     if (!fileData || fileData.length === 0) {
       return res.status(404).json({
         success: false,
-        message: "No data found for the provided date range",
+        message: 'No data found for the provided date range',
       });
     }
 
@@ -240,26 +241,26 @@ export const downloadDataCsv = async (req, res) => {
     const filePath = await generateExcelFile(fileDataList);
 
     // Send the file as a response
-    res.download(filePath, "data.xlsx", async (err) => {
+    res.download(filePath, 'data.xlsx', async (err) => {
       if (err) {
-        console.error("Error downloading the file:", err);
-        return res.status(500).send("Error downloading the file");
+        console.error('Error downloading the file:', err);
+        return res.status(500).send('Error downloading the file');
       }
 
       // Clean up the file after download
       try {
-        await fs.unlink(filePath);
+        await fsPromises.unlink(filePath);
       } catch (unlinkErr) {
-        console.error("Error deleting the file after download:", unlinkErr);
+        console.error('Error deleting the file after download:', unlinkErr);
       }
     });
   } catch (error) {
-    console.error("Error in generating the file:", error);
+    console.error('Error in generating the file:', error);
 
     // Send detailed error response for debugging (avoid leaking sensitive info in production)
     res.status(500).json({
       success: false,
-      message: "Error in generating the Excel file",
+      message: 'Error in generating the Excel file',
       error: error.message,
     });
   }
@@ -461,24 +462,24 @@ export const generateExcelFile = async (data) => {
 
   // Add headers
   sheetData.push([
-    "Index",
-    "Barcode",
-    "Service",
-    "Type of Request",
-    "Collection Point",
-    "Entry Date At",
-    "Tagging Status",
-    "Tagging Documents",
-    "Warehousing Status",
-    "Warehousing Details",
-    "No Of Pages",
+    'Index',
+    'Barcode',
+    'Service',
+    'Type of Request',
+    'Collection Point',
+    'Entry Date At',
+    'Tagging Status',
+    'Tagging Documents',
+    'Warehousing Status',
+    'Warehousing Details',
+    'No Of Pages',
   ]);
 
   // Add data rows
   data.forEach((entry, index) => {
-    let taggingDocuments = "";
+    let taggingDocuments = '';
     let a = entry.tagging.map((d) => {
-      taggingDocuments += d.documentName + ", ";
+      taggingDocuments += d.documentName + ', ';
     });
     // Add fileData information
     const fileDataRow = [
@@ -488,9 +489,9 @@ export const generateExcelFile = async (data) => {
       entry.fileData.typeOfRequest,
       entry.fileData.collectionPoint,
       entry.fileData.createdAt,
-      entry.tagging.length > 0 ? "Done" : "Pending",
+      entry.tagging.length > 0 ? 'Done' : 'Pending',
       taggingDocuments,
-      entry.warehouse.length > 0 ? "Done" : "Pending",
+      entry.warehouse.length > 0 ? 'Done' : 'Pending',
     ];
 
     // Join details for Tagging and Warehousing
@@ -499,7 +500,7 @@ export const generateExcelFile = async (data) => {
         (wh) =>
           `Box: ${wh.boxNumber}, Shelf: ${wh.shelfNumber}, Rack: ${wh.rackNumber}`
       )
-      .join("; ");
+      .join('; ');
     const noOfPagesDetail = entry.noOfPages;
     // Add details to the row
     sheetData.push([...fileDataRow, warehouseDetails, noOfPagesDetail]);
@@ -507,9 +508,9 @@ export const generateExcelFile = async (data) => {
 
   // Create the sheet and add to the workbook
   const sheet = xlsx.utils.aoa_to_sheet(sheetData);
-  xlsx.utils.book_append_sheet(workbook, sheet, "Data");
+  xlsx.utils.book_append_sheet(workbook, sheet, 'Data');
 
-  const downloadDir = path.join(__dirname, "..", "downloads");
+  const downloadDir = path.join(__dirname, '..', 'downloads');
   const filePath = path.join(downloadDir, `${Date.now()}_data.xlsx`);
 
   try {
@@ -519,7 +520,7 @@ export const generateExcelFile = async (data) => {
     // Write the workbook to the file
     xlsx.writeFile(workbook, filePath);
   } catch (err) {
-    console.error("Error creating directory or writing file:", err);
+    console.error('Error creating directory or writing file:', err);
     throw err;
   }
 
