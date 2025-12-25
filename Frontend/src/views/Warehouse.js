@@ -89,6 +89,33 @@ const Warehouse = () => {
       toast.error('Something went wrong');
     }
   };
+  const loadNextBarcode = async () => {
+    if (!selectedBarcode || !selectedBarcode.barcode) {
+      toast.error('No barcode selected');
+      return;
+    }
+
+    try {
+      const nextBarcode = String(Number(selectedBarcode.barcode) + 1);
+
+      const res = await getFileFromBarcode({ barcode: nextBarcode });
+
+      if (res?.success && res?.data) {
+        setCSAData([res.data]);
+        setSelectedBarcode(res.data);
+        setSelectedCSA(res.data);
+
+        getFileData(res.data);
+        getOldDataWithSameCsa(res.data);
+      } else {
+        toast.warning('No data available for next barcode');
+      }
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to load next barcode');
+    }
+  };
+
   useEffect(() => {
     const loadData = async () => {
       try {
@@ -397,6 +424,8 @@ const Warehouse = () => {
       if (data?.success) {
         toast.success(data?.message);
         setAddFileModal(false);
+
+        loadNextBarcode();
         // Reset state values only if the API call is successful
       } else {
         toast.error(data?.message);
@@ -527,25 +556,25 @@ const Warehouse = () => {
     <>
       <NormalHeader />
       <Container
-        className='mt--7'
+        className="mt--7"
         fluid
       >
         {loader ? <Loader /> : ''}
         <Row>
-          <div className='col'>
-            <Card className='shadow'>
-              <CardHeader className='border-0'>
-                <div className='d-flex justify-content-between'>
-                  <h1 className='mt-2'>Warehouse Section</h1>
+          <div className="col">
+            <Card className="shadow">
+              <CardHeader className="border-0">
+                <div className="d-flex justify-content-between">
+                  <h1 className="mt-2">Warehouse Section</h1>
                 </div>
-                <Row className='mb-3'>
+                <Row className="mb-3">
                   <label
-                    htmlFor='example-text-input'
-                    className='col-md-2 col-form-label'
+                    htmlFor="example-text-input"
+                    className="col-md-2 col-form-label"
                   >
                     Barcode
                   </label>
-                  <div className='col-md-10'>
+                  <div className="col-md-10">
                     <Select
                       value={selectedBarcode}
                       onChange={handleBarcodeChange}
@@ -559,8 +588,8 @@ const Warehouse = () => {
                       // filterOption={customFilterOption} // Custom filter for sorting by search input
                       getOptionLabel={(option) => option?.barcode}
                       getOptionValue={(option) => option?.id?.toString()} // Convert to string if id is a number
-                      classNamePrefix='select2-selection'
-                      placeholder='Enter barcode to search'
+                      classNamePrefix="select2-selection"
+                      placeholder="Enter barcode to search"
                     />
 
                     {!selectedBarcode && (
@@ -570,14 +599,14 @@ const Warehouse = () => {
                     )}
                   </div>
                 </Row>
-                <Row className='mb-3'>
+                <Row className="mb-3">
                   <label
-                    htmlFor='example-text-input'
-                    className='col-md-2 col-form-label'
+                    htmlFor="example-text-input"
+                    className="col-md-2 col-form-label"
                   >
                     CSA Number
                   </label>
-                  <div className='col-md-10'>
+                  <div className="col-md-10">
                     <Select
                       value={selectedCSA}
                       onChange={handleSelectCSA}
@@ -585,32 +614,32 @@ const Warehouse = () => {
                       options={CSAData}
                       getOptionLabel={(option) => option?.CSA}
                       getOptionValue={(option) => option?.id?.toString()} // Convert to string if classId is a number
-                      classNamePrefix='select2-selection'
-                      placeholder='Search barcode to get CSA'
+                      classNamePrefix="select2-selection"
+                      placeholder="Search barcode to get CSA"
                     />
                   </div>
                 </Row>
-                <div className='functions mt-2 d-flex justify-content-end'>
+                <div className="functions mt-2 d-flex justify-content-end">
                   <Button
-                    className=''
-                    color='success'
-                    type='button'
+                    className=""
+                    color="success"
+                    type="button"
                     onClick={handleAddFile}
                   >
                     Add File
                   </Button>
                   <Button
-                    className=''
-                    color='primary'
-                    type='button'
+                    className=""
+                    color="primary"
+                    type="button"
                     onClick={handleIssueFile}
                   >
                     Issue File
                   </Button>
                   <Button
-                    className=''
-                    color='info'
-                    type='button'
+                    className=""
+                    color="info"
+                    type="button"
                     onClick={handleReturnFile}
                   >
                     Return File
@@ -624,12 +653,12 @@ const Warehouse = () => {
       {/* Modal for add the file  */}
       <Modal
         show={addFileModal}
-        size='lg'
-        aria-labelledby='contained-modal-title-vcenter'
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
         centered
       >
         <Modal.Header>
-          <Modal.Title id='contained-modal-title-vcenter'>Add File</Modal.Title>
+          <Modal.Title id="contained-modal-title-vcenter">Add File</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           {csaOldRecord && (
@@ -641,9 +670,9 @@ const Warehouse = () => {
 
               {csaOldRecord.map((d, i) => (
                 <>
-                  <div className='m-4'>
+                  <div className="m-4">
                     <b>{i + 1}.</b>
-                    <div className='mx-3'>
+                    <div className="mx-3">
                       <h4>Barcode: {d?.barcode}</h4>
                       <h4>Type of Application: {d?.typeOfApplication}</h4>
                       <h4>Date of Application: {d?.dateOfApplication}</h4>
@@ -654,18 +683,18 @@ const Warehouse = () => {
             </>
           )}
 
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Box Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={boxNumber}
                 onChange={(e) => setBoxNumber(e.target.value)}
               />
@@ -677,18 +706,18 @@ const Warehouse = () => {
             </div>
           </Row>
 
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Rack Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={rackNumber}
                 onChange={(e) => setRackNumber(e.target.value)}
               />
@@ -700,18 +729,18 @@ const Warehouse = () => {
             </div>
           </Row>
 
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Shelf Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={shelfNumber}
                 onChange={(e) => setShelfNumber(e.target.value)}
               />
@@ -723,14 +752,14 @@ const Warehouse = () => {
             </div>
           </Row>
 
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Floor Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <Select
                 value={
                   floorOptions.find((f) => f.value === floorNumber) || null
@@ -740,9 +769,9 @@ const Warehouse = () => {
                   localStorage.setItem(LS_FLOOR, option.value);
                 }}
                 options={floorOptions}
-                placeholder='Select Floor'
+                placeholder="Select Floor"
                 isDisabled={!selectedWarehouse}
-                classNamePrefix='select2-selection'
+                classNamePrefix="select2-selection"
               />
 
               {!floorNumber && (
@@ -753,9 +782,9 @@ const Warehouse = () => {
             </div>
           </Row>
 
-          <Row className='mb-3'>
-            <label className='col-md-2 col-form-label'>Warehouse</label>
-            <div className='col-md-10'>
+          <Row className="mb-3">
+            <label className="col-md-2 col-form-label">Warehouse</label>
+            <div className="col-md-10">
               <Select
                 value={selectedWarehouse}
                 onChange={(option) => {
@@ -779,8 +808,8 @@ const Warehouse = () => {
                   localStorage.setItem(LS_FLOOR, '1');
                 }}
                 options={warehouseList}
-                placeholder='Select Warehouse'
-                classNamePrefix='select2-selection'
+                placeholder="Select Warehouse"
+                classNamePrefix="select2-selection"
               />
 
               {!selectedWarehouse && (
@@ -793,18 +822,18 @@ const Warehouse = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type='button'
-            color='success'
+            type="button"
+            color="success"
             onClick={handleAddFileSubmit}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Add
           </Button>{' '}
           <Button
-            type='button'
-            color='primary'
+            type="button"
+            color="primary"
             onClick={() => setAddFileModal(false)}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Close
           </Button>{' '}
@@ -814,28 +843,28 @@ const Warehouse = () => {
       {/* Modal for Issue the file  */}
       <Modal
         show={issueFileModal}
-        size='lg'
-        aria-labelledby='contained-modal-title-vcenter'
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
         centered
       >
         <Modal.Header>
-          <Modal.Title id='contained-modal-title-vcenter'>
+          <Modal.Title id="contained-modal-title-vcenter">
             Issue File
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Reason
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Reason for Issuance of the File'
+                type="text"
+                className="form-control"
+                placeholder="Enter Reason for Issuance of the File"
                 value={fileIssueReason}
                 onChange={(e) => setFileIssueReason(e.target.value)}
               />
@@ -846,18 +875,18 @@ const Warehouse = () => {
               )}
             </div>
           </Row>
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Select Issue To
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Issue to'
+                type="text"
+                className="form-control"
+                placeholder="Enter Issue to"
                 value={issueTo}
                 onChange={(e) => setIssueTo(e.target.value)}
               />
@@ -869,7 +898,7 @@ const Warehouse = () => {
             </div>
           </Row>
 
-          <div className='m-auto'>
+          <div className="m-auto">
             <h1>File Data</h1>
             <h4>Box No: {fileData?.boxNumber}</h4>
             <h4>Rack No: {fileData?.rackNumber}</h4>
@@ -880,18 +909,18 @@ const Warehouse = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type='button'
-            color='primary'
+            type="button"
+            color="primary"
             onClick={() => setIssueFileModal(false)}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Close
           </Button>{' '}
           <Button
-            type='button'
-            color='success'
+            type="button"
+            color="success"
             onClick={handleIssueFileSubmit}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Issue
           </Button>{' '}
@@ -900,28 +929,28 @@ const Warehouse = () => {
 
       <Modal
         show={returnFileModal}
-        size='lg'
-        aria-labelledby='contained-modal-title-vcenter'
+        size="lg"
+        aria-labelledby="contained-modal-title-vcenter"
         centered
       >
         <Modal.Header>
-          <Modal.Title id='contained-modal-title-vcenter'>
+          <Modal.Title id="contained-modal-title-vcenter">
             Return File
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Box Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={boxNumber}
                 onChange={(e) => setBoxNumber(e.target.value)}
               />
@@ -932,18 +961,18 @@ const Warehouse = () => {
               )}
             </div>
           </Row>
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Shelf Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={shelfNumber}
                 onChange={(e) => setShelfNumber(e.target.value)}
               />
@@ -954,18 +983,18 @@ const Warehouse = () => {
               )}
             </div>
           </Row>
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Rack Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
-                placeholder='Enter Box File Number'
+                type="text"
+                className="form-control"
+                placeholder="Enter Box File Number"
                 value={rackNumber}
                 onChange={(e) => setRackNumber(e.target.value)}
               />
@@ -976,35 +1005,35 @@ const Warehouse = () => {
               )}
             </div>
           </Row>
-          <Row className='mb-3'>
-            <label className='col-md-2 col-form-label'>Warehouse</label>
-            <div className='col-md-10'>
+          <Row className="mb-3">
+            <label className="col-md-2 col-form-label">Warehouse</label>
+            <div className="col-md-10">
               <input
-                type='text'
-                className='form-control'
+                type="text"
+                className="form-control"
                 value={selectedWarehouse?.label || ''}
                 disabled
               />
             </div>
           </Row>
 
-          <Row className='mb-3'>
+          <Row className="mb-3">
             <label
-              htmlFor='example-text-input'
-              className='col-md-2 col-form-label'
+              htmlFor="example-text-input"
+              className="col-md-2 col-form-label"
             >
               Floor Number
             </label>
-            <div className='col-md-10'>
+            <div className="col-md-10">
               <Select
                 value={
                   floorOptions.find((f) => f.value === floorNumber) || null
                 }
                 onChange={(option) => setFloorNumber(option.value)}
                 options={floorOptions}
-                placeholder='Select Floor'
+                placeholder="Select Floor"
                 isDisabled={!selectedWarehouse}
-                classNamePrefix='select2-selection'
+                classNamePrefix="select2-selection"
               />
               {!floorNumber && (
                 <span style={{ color: 'red', display: spanDisplay }}>
@@ -1016,18 +1045,18 @@ const Warehouse = () => {
         </Modal.Body>
         <Modal.Footer>
           <Button
-            type='button'
-            color='primary'
+            type="button"
+            color="primary"
             onClick={() => setReturnFileModal(false)}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Close
           </Button>{' '}
           <Button
-            type='button'
-            color='success'
+            type="button"
+            color="success"
             onClick={handleReturnFileSubmit}
-            className='waves-effect waves-light'
+            className="waves-effect waves-light"
           >
             Return
           </Button>{' '}
